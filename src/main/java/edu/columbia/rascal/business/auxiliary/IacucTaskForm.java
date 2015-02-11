@@ -124,20 +124,6 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         return dateTime.toString("MM/dd/yyyy HH:mm:ss");
     }
 
-    /*
-    @Override
-    public Map<String, Object> getListCorrMap() {
-        Map<String, Map<String, Object>> treeMap = new TreeMap<String, Map<String, Object>>();
-        if (iacucCorrespondence.isEmpty()) return treeMap;
-        for (IacucCorrespondence corr : this.iacucCorrespondence) {
-            Map<String, Object>map=corr.getProperties();
-            if(!map.isEmpty())
-                treeMap.put(corr.getId(), map);
-        }
-        return treeMap;
-    }
-    */
-
     @Override
     public Map<String, String> getProperties() {
         Map<String, String> map = new HashMap<String, String>();
@@ -155,7 +141,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         }
         if(!reviewerList.isEmpty()) {
             for(int i=0; i<reviewerList.size(); i++) {
-                map.put("u"+i, reviewerList.get(i));
+                map.put("rv"+i+1, reviewerList.get(i));
             }
         }
         //...
@@ -177,14 +163,12 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
             DateTime dateTime = new DateTime(ms);
             this.date = dateTime.toDate();
         }
-        if(map.get("u0")!=null) {
-            reviewerList.add(map.get("u0"));
-        }
-        if(map.get("u1")!=null) {
-            reviewerList.add(map.get("u1"));
-        }
-        if(map.get("u2")!=null) {
-            reviewerList.add(map.get("u2"));
+
+        for(int i=1; i<6; i++) {
+            String rv=map.get("rv" + i);
+            if(rv!=null) {
+                reviewerList.add(rv);
+            }
         }
         //...
     }
