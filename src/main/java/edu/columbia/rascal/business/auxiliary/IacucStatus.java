@@ -162,7 +162,9 @@ public enum IacucStatus {
 
     TERMINATE("Terminate") {
         @Override
-        public String taskDefKey() { return "terminateProtocol"; }
+        public String taskDefKey() {
+            return "terminateProtocol";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -281,7 +283,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status) ? true : isKaput(status);
+            return statusName().equals(status) ? true : isKaput(status);
         }
 
         @Override
@@ -289,7 +291,7 @@ public enum IacucStatus {
             return 8;
         }
     },
-    
+
     UndoReturnToPI("Undo Return to PI") {
         @Override
         public String taskDefKey() {
@@ -303,16 +305,16 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
         public int gatewayValue() {
             // unused
-        	return 9;
+            return 9;
         }
     },
-    
+
     UndoApproval("Undo Approval") {
         @Override
         public String taskDefKey() {
@@ -326,12 +328,12 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
         public int gatewayValue() {
-        	// unused
+            // unused
             return 10;
         }
     },
@@ -349,32 +351,42 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 1; }
+        public int gatewayValue() {
+            return 1;
+        }
     },
 
     DistributeReviewer("Distribute: Designated Reviewers") {
         @Override
-        public String taskDefKey() {  return "distributeToDS"; }
-
-        @Override
-        public boolean isDefKey(String def) { return taskDefKey().equals(def); }
-
-        @Override
-        public boolean isStatus(String status) {
-            return  statusName().equals(status);
+        public String taskDefKey() {
+            return "distributeToDS";
         }
 
         @Override
-        public int gatewayValue() { return 2; }
+        public boolean isDefKey(String def) {
+            return taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 2;
+        }
     },
-    
+
     Rv1Approval("Designated Reviewer Approval") {
         @Override
-        public String taskDefKey() { return "rv1Approval"; }
+        public String taskDefKey() {
+            return "rv1Approval";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -383,18 +395,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
         public int gatewayValue() {
-        	// unused
+            // unused
             return 10;
         }
     },
     Rv1Hold("Designated Reviewer Hold") {
         @Override
-        public String taskDefKey() { return "rv1Hold"; }
+        public String taskDefKey() {
+            return "rv1Hold";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -403,7 +417,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -415,7 +429,9 @@ public enum IacucStatus {
 
     Rv1ReqFullReview("Designated Reviewer Request Full Review") {
         @Override
-        public String taskDefKey() { return "rv1ReqFullReview"; }
+        public String taskDefKey() {
+            return "rv1ReqFullReview";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -424,7 +440,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -436,7 +452,9 @@ public enum IacucStatus {
 
     Rv2Approval("Designated Reviewer Approval") {
         @Override
-        public String taskDefKey() { return "rv2Approval"; }
+        public String taskDefKey() {
+            return "rv2Approval";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -445,7 +463,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -457,7 +475,9 @@ public enum IacucStatus {
 
     Rv2Hold("Designated Reviewer Hold") {
         @Override
-        public String taskDefKey() { return "rv2Hold"; }
+        public String taskDefKey() {
+            return "rv2Hold";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -466,7 +486,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -478,7 +498,9 @@ public enum IacucStatus {
 
     Rv2ReqFullReview("Designated Reviewer Request Full Review") {
         @Override
-        public String taskDefKey() { return "rv2ReqFullReview"; }
+        public String taskDefKey() {
+            return "rv2ReqFullReview";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -487,7 +509,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -499,7 +521,9 @@ public enum IacucStatus {
 
     Rv3Approval("Designated Reviewer Approval") {
         @Override
-        public String taskDefKey() { return "rv3Approval"; }
+        public String taskDefKey() {
+            return "rv3Approval";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -508,7 +532,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -519,7 +543,9 @@ public enum IacucStatus {
     },
     Rv3Hold("Designated Reviewer Hold") {
         @Override
-        public String taskDefKey() { return "rv3Hold"; }
+        public String taskDefKey() {
+            return "rv3Hold";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -528,7 +554,7 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
@@ -539,7 +565,9 @@ public enum IacucStatus {
     },
     Rv3ReqFullReview("Designated Reviewer Request Full Review") {
         @Override
-        public String taskDefKey() { return "rv3ReqFullReview"; }
+        public String taskDefKey() {
+            return "rv3ReqFullReview";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -548,7 +576,140 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            // unused
+            return 10;
+        }
+    },
+
+    Rv4Approval("Designated Reviewer Approval") {
+        @Override
+        public String taskDefKey() {
+            return "rv4Approval";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            // unused
+            return 10;
+        }
+    },
+    Rv4Hold("Designated Reviewer Hold") {
+        @Override
+        public String taskDefKey() {
+            return "rv4Hold";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            // unused
+            return 10;
+        }
+    },
+    Rv4ReqFullReview("Designated Reviewer Request Full Review") {
+        @Override
+        public String taskDefKey() {
+            return "rv4ReqFullReview";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            // unused
+            return 10;
+        }
+    },
+    Rv5Approval("Designated Reviewer Approval") {
+        @Override
+        public String taskDefKey() {
+            return "rv5Approval";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            // unused
+            return 10;
+        }
+    },
+    Rv5Hold("Designated Reviewer Hold") {
+        @Override
+        public String taskDefKey() {
+            return "rv5Hold";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            // unused
+            return 10;
+        }
+    },
+    Rv5ReqFullReview("Designated Reviewer Request Full Review") {
+        @Override
+        public String taskDefKey() {
+            return "rv5ReqFullReview";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
         }
 
         @Override
@@ -560,7 +721,9 @@ public enum IacucStatus {
 
     AddNote("Add Note") {
         @Override
-        public String taskDefKey() { return "addNote"; }
+        public String taskDefKey() {
+            return "addNote";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -569,16 +732,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     M9Reminder("9 Month Reminder") {
         @Override
-        public String taskDefKey() { return "m9Reminder"; }
+        public String taskDefKey() {
+            return "m9Reminder";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -587,16 +754,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     M6Reminder("6 Month Reminder") {
         @Override
-        public String taskDefKey() { return "m6Reminder"; }
+        public String taskDefKey() {
+            return "m6Reminder";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -605,16 +776,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     M3Reminder("3 Month Reminder") {
         @Override
-        public String taskDefKey() { return "m3Reminder"; }
+        public String taskDefKey() {
+            return "m3Reminder";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -623,16 +798,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     SOPreApproveA("Safety Office Pre-approve Appendix-A") {
         @Override
-        public String taskDefKey() { return "soPreApproveA"; }
+        public String taskDefKey() {
+            return "soPreApproveA";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -641,16 +820,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     SOHoldA("Safety Office Hold Appendix-A") {
         @Override
-        public String taskDefKey() { return "soHoldA"; }
+        public String taskDefKey() {
+            return "soHoldA";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -659,16 +842,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     SOPreApproveB("Safety Office Pre-approve Appendix-B") {
         @Override
-        public String taskDefKey() { return "soPreApproveB"; }
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -677,16 +864,20 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
     },
 
     SOHoldB("Safety Office Hold Appendix-B") {
         @Override
-        public String taskDefKey() { return "soHoldB"; }
+        public String taskDefKey() {
+            return "soHoldB";
+        }
 
         @Override
         public boolean isDefKey(String def) {
@@ -695,11 +886,273 @@ public enum IacucStatus {
 
         @Override
         public boolean isStatus(String status) {
-            return  statusName().equals(status);
+            return statusName().equals(status);
         }
 
         @Override
-        public int gatewayValue() { return 10; }
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOPreApproveC("Safety Office Pre-approve Appendix-C") {
+        @Override
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOHoldC("Safety Office Hold Appendix-C") {
+        @Override
+        public String taskDefKey() {
+            return "soHoldB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOPreApproveD("Safety Office Pre-approve Appendix-D") {
+        @Override
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOHoldD("Safety Office Hold Appendix-D") {
+        @Override
+        public String taskDefKey() {
+            return "soHoldB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+    SOPreApproveE("Safety Office Pre-approve Appendix-E") {
+        @Override
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOHoldE("Safety Office Hold Appendix-E") {
+        @Override
+        public String taskDefKey() {
+            return "soHoldB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+    SOPreApproveF("Safety Office Pre-approve Appendix-F") {
+        @Override
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOHoldF("Safety Office Hold Appendix-F") {
+        @Override
+        public String taskDefKey() {
+            return "soHoldB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+    SOPreApproveG("Safety Office Pre-approve Appendix-G") {
+        @Override
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOHoldG("Safety Office Hold Appendix-G") {
+        @Override
+        public String taskDefKey() {
+            return "soHoldB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+    SOPreApproveI("Safety Office Pre-approve Appendix-I") {
+        @Override
+        public String taskDefKey() {
+            return "soPreApproveB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    },
+
+    SOHoldI("Safety Office Hold Appendix-I") {
+        @Override
+        public String taskDefKey() {
+            return "soHoldB";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
     };
 
 
@@ -710,6 +1163,7 @@ public enum IacucStatus {
     }
 
     private static final Set<String> KaputSet = new HashSet<String>();
+
     static {
         KaputSet.add("Release");
         KaputSet.add("UnRelease");

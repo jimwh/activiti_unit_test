@@ -72,6 +72,7 @@ public class MyUnitTest {
         u2Approval(bizKey, "Dave");
         //u2Hold(bizKey, "Dave");
 
+        printOpenTaskList(bizKey);
 
         finalApproval(bizKey, "admin");
         // returnToPI(bizKey, "admin");
@@ -322,8 +323,8 @@ public class MyUnitTest {
                 .includeTaskLocalVariables()
                 .orderByHistoricTaskInstanceEndTime()
                 .desc();
-        List<HistoricTaskInstance> list = query.list();
-        return list;
+        return query.list();
+
     }
 
     List<HistoricTaskInstance> getFromSubProcess(String bizKey) {
@@ -423,7 +424,10 @@ public class MyUnitTest {
 
     void printOpenTaskList(String bizKey) {
         List<Task> taskList = activitiRule.getTaskService()
-                .createTaskQuery().processInstanceBusinessKey(bizKey).list();
+                .createTaskQuery()
+                .processDefinitionKey(ProcessDefKey)
+                .processInstanceBusinessKey(bizKey)
+                .list();
         for (Task task : taskList) {
             log.info("taskDefKey=" + task.getTaskDefinitionKey());
         }
