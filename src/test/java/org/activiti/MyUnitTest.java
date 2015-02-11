@@ -39,20 +39,18 @@ public class MyUnitTest {
 
         String bizKey = "my-bizKey";
 
-        // it has appendix attached
+        // for appendix if any
         Map<String, Object> processMap = new HashMap<String, Object>();
-        boolean hasAppendixA = true;
-        processMap.put("hasAppendixA", hasAppendixA);
-        processMap.put("hasAppendixB", hasAppendixA);
-        processMap.put("hasAppendixC", hasAppendixA);
-        processMap.put("hasAppendixD", hasAppendixA);
-        processMap.put("hasAppendixE", hasAppendixA);
-        processMap.put("hasAppendixF", hasAppendixA);
-        processMap.put("hasAppendixG", hasAppendixA);
-        processMap.put("hasAppendixI", hasAppendixA);
-
-        // Appendix A...I
+        processMap.put("hasAppendixA", true);
+        processMap.put("hasAppendixB", true);
+        processMap.put("hasAppendixC", false);
+        processMap.put("hasAppendixD", false);
+        processMap.put("hasAppendixE", false);
+        processMap.put("hasAppendixF", false);
+        processMap.put("hasAppendixG", false);
+        processMap.put("hasAppendixI", false);
         startProtocolProcess(bizKey, processMap);
+
         //
         // distribute it to reviewers
         List<String> rvList = new ArrayList<String>();
@@ -75,20 +73,17 @@ public class MyUnitTest {
         printOpenTaskList(bizKey);
 
         finalApproval(bizKey, "admin");
+        undoApproval(bizKey, "admin");
         // returnToPI(bizKey, "admin");
 
         printCurrentApprovalStatus(bizKey);
 
-        //undoApproval(bizKey, "admin");
-        /*
         try{
             Thread.sleep(5000);
         }catch(InterruptedException e){}
 
         printCurrentApprovalStatus(bizKey);
 
-
-        */
         printHistory(bizKey);
     }
 

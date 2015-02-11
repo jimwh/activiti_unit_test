@@ -8,10 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Distribute Protocol to Designated Reviewers
-// DistributeReviewerForm
-// DistributeSubcommitteeForm
-//
 public class IacucDistributeReviewerForm extends IacucTaskForm {
 
     private static final Logger log= LoggerFactory.getLogger(IacucDistributeReviewerForm.class);

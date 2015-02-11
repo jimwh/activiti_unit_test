@@ -24,7 +24,10 @@ public class IacucListener implements TaskListener, ExecutionListener {
     private static final String appendixGApproved = "gApproved";
     private static final String appendixIApproved = "iApproved";
 
-    // task listener
+    /**
+     * Task listener will be called  by activity
+     * @param delegateTask
+     */
     @Override
     public void notify(DelegateTask delegateTask) {
 
@@ -34,17 +37,13 @@ public class IacucListener implements TaskListener, ExecutionListener {
         String taskId = delegateTask.getId();
         String taskDefKey = delegateTask.getTaskDefinitionKey();
         String eventName = delegateTask.getEventName();
-        StringBuilder sb = new StringBuilder();
-        sb.append("bizKey=").append(bizKey)
-                .append(",taskId=").append(taskId)
-                .append(",taskDefKey=").append(taskDefKey)
-                .append(",processId=").append(processId);
+
+        log.info("eventName={}, bizKey={}, taskDefKey={}, taskId={}, processId={}",
+                eventName, bizKey, taskDefKey, taskId, processId);
 
         if (!"complete".equals(eventName)) {
             return;
         }
-        log.info("complete: {}", sb.toString());
-
 
         if (IacucStatus.RETURNTOPI.isDefKey(taskDefKey)) {
             taskExecution.setVariable("undoApproval", false);
@@ -156,7 +155,11 @@ public class IacucListener implements TaskListener, ExecutionListener {
         delegateTask.setVariable(AllAppendicesApproved, true);
     }
 
-    // execution listener
+    /**
+     * Execution listener will be called  by activity
+     * @param delegateExecution
+     * @throws Exception
+     */
     @Override
     public void notify(DelegateExecution delegateExecution) throws Exception {
 
@@ -166,6 +169,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
         if (superExecEntity == null) {
             setUpAppendixApproveStatus(delegateExecution);
+
             // get the business key of the main process
             log.info("main process: eventName={}, bizKey={}, procDefId={}", eventName, thisEntity.getBusinessKey(), thisEntity.getProcessDefinitionId());
             // used by designatedReviews output
