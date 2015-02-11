@@ -1,4 +1,4 @@
-package edu.columbia.rascal.business.auxiliary;
+package edu.columbia.rascal.business.service.auxiliary;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

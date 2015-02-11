@@ -1,11 +1,10 @@
-package edu.columbia.rascal.business.auxiliary;
+package edu.columbia.rascal.business.service.auxiliary;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;

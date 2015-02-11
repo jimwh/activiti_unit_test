@@ -1,4 +1,4 @@
-package edu.columbia.rascal.business.auxiliary;
+package edu.columbia.rascal.business.service.auxiliary;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.DelegateTask;

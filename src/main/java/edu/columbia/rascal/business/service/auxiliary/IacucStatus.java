@@ -1,4 +1,4 @@
-package edu.columbia.rascal.business.auxiliary;
+package edu.columbia.rascal.business.service.auxiliary;
 
 import java.util.HashSet;
 import java.util.Set;

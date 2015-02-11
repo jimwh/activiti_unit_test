@@ -12,5 +12,5 @@
     </bean>
 
     <bean id="iacucListener"
-          class="edu.columbia.rascal.business.auxiliary.IacucListener"/>
+          class="edu.columbia.rascal.business.service.auxiliary.IacucListener"/>
 </beans>

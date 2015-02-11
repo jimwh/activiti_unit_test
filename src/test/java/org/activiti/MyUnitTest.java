@@ -2,7 +2,7 @@ package org.activiti;
 
 import java.util.*;
 
-import edu.columbia.rascal.business.auxiliary.*;
+import edu.columbia.rascal.business.service.auxiliary.*;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
