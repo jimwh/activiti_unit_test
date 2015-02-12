@@ -128,9 +128,10 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     public Map<String, String> getProperties() {
         Map<String, String> map = new HashMap<String, String>();
 
-        // map.put("comment", this.comment);
-        map.put("commentId", this.commentId);
+        map.put("bizKey", this.bizKey);
 
+        map.put("commentId", this.commentId);
+        map.put("snapshotId", this.snapshotId);
         map.put("author", this.author);
         map.put("taskName", this.taskName);
         map.put("taskDefKey", this.taskDefKey);
@@ -154,7 +155,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
 
         this.taskName = map.get("taskName");
         this.taskDefKey = map.get("taskDefKey");
-        // this.comment = map.get("comment");
+        this.comment = map.get("bizKey");
         this.commentId = map.get("commentId");
         this.author = map.get("author");
         this.snapshotId = map.get("snapshotId");
@@ -174,7 +175,10 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     }
 
     public void setProperty(String id, String value) {
-        if ("author".equals(id)) {
+        if("bizKey".equals(id)) {
+            bizKey=value;
+        }
+        else if ("author".equals(id)) {
             this.author = value;
         } else if("commentId".equals(id)) {
             this.commentId = value;

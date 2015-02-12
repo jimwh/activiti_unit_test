@@ -41,8 +41,9 @@ public class MyUnitTest {
 
         // for appendix if any
         Map<String, Object> processMap = new HashMap<String, Object>();
+        processMap.put("hasAppendix", true);
         processMap.put("hasAppendixA", true);
-        processMap.put("hasAppendixB", true);
+        processMap.put("hasAppendixB", false);
         processMap.put("hasAppendixC", false);
         processMap.put("hasAppendixD", false);
         processMap.put("hasAppendixE", false);
@@ -51,38 +52,49 @@ public class MyUnitTest {
         processMap.put("hasAppendixI", false);
         startProtocolProcess(bizKey, processMap);
 
+/*
+        distToSub(bizKey,"admin");
+        approveAppendixA(bizKey, "safetyOfficeDam");
+        //holdAppendixB(bizKey, "safetyOfficeHolder");
+        subcommitteeReview(bizKey, "admin");
+        // returnToPI(bizKey, "admin");
+        log.info("taskCount={}", taskCount(bizKey));
+        printOpenTaskList(bizKey);
+*/
         //
         // distribute it to reviewers
+
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         rvList.add("Dave");
         distributeToDS(bizKey, "admin", rvList);
-        printOpenTaskList(bizKey);
+        //printOpenTaskList(bizKey);
 
         // reviewer approval
         u1Approval(bizKey, "Sam");
+        //printCurrentApprovalStatus(bizKey);
 
-        approveAppendixA(bizKey, "safetyOfficeDam");
+        //approveAppendixA(bizKey, "safetyOfficeDam");
         //approveAppendixB(bizKey, "safetyOfficeHolder");
-        //holdAppendixB(bizKey, "safetyOfficeHolder");
+        // holdAppendixB(bizKey, "safetyOfficeHolder");
 
         // another user approval
         u2Approval(bizKey, "Dave");
-        //u2Hold(bizKey, "Dave");
+        // u2Hold(bizKey, "Dave");
 
         printOpenTaskList(bizKey);
 
-        finalApproval(bizKey, "admin");
-        undoApproval(bizKey, "admin");
+        //finalApproval(bizKey, "admin");
+        // undoApproval(bizKey, "admin");
         // returnToPI(bizKey, "admin");
 
-        printCurrentApprovalStatus(bizKey);
+        //printCurrentApprovalStatus(bizKey);
 
-        try{
-            Thread.sleep(5000);
-        }catch(InterruptedException e){}
+        // try{ Thread.sleep(5000);}catch(InterruptedException e){}
 
-        printCurrentApprovalStatus(bizKey);
+        //printCurrentApprovalStatus(bizKey);
+
+        log.info("taskCount={}", taskCount(bizKey));
 
         printHistory(bizKey);
     }
@@ -128,6 +140,27 @@ public class MyUnitTest {
         iacucTaskForm.setTaskName(IacucStatus.UndoReturnToPI.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.UndoReturnToPI.taskDefKey());
         //
+        completeTaskByTaskService(iacucTaskForm);
+    }
+
+    void distToSub(String bizKey, String user) {
+        IacucDistributeSubcommitteeForm iacucTaskForm = new IacucDistributeSubcommitteeForm();
+        iacucTaskForm.setBizKey(bizKey);
+        iacucTaskForm.setAuthor(user);
+        iacucTaskForm.setComment("distribute protocol to subcommittee");
+        iacucTaskForm.setTaskName(IacucStatus.DistributeSubcommittee.statusName());
+        iacucTaskForm.setTaskDefKey(IacucStatus.DistributeSubcommittee.taskDefKey());
+        iacucTaskForm.setDate(new Date());
+        completeTaskByTaskService(iacucTaskForm);
+    }
+
+    void subcommitteeReview(String bizKey, String user) {
+        IacucTaskForm iacucTaskForm = new IacucTaskForm();
+        iacucTaskForm.setBizKey(bizKey);
+        iacucTaskForm.setAuthor(user);
+        iacucTaskForm.setComment("subcommittee review");
+        iacucTaskForm.setTaskName(IacucStatus.SubcommitteeReview.statusName());
+        iacucTaskForm.setTaskDefKey(IacucStatus.SubcommitteeReview.taskDefKey());
         completeTaskByTaskService(iacucTaskForm);
     }
 
@@ -214,14 +247,21 @@ public class MyUnitTest {
         completeTaskByTaskService(iacucTaskForm);
     }
 
-    void u2Hold(String bizKey, String u1) {
+    void u2Hold(String bizKey, String u) {
         IacucTaskForm iacucTaskForm = new IacucTaskForm();
         iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(u1);
-        iacucTaskForm.setComment("u1 is hold");
+        iacucTaskForm.setAuthor(u);
+        iacucTaskForm.setComment("u2 is hold");
         iacucTaskForm.setTaskName(IacucStatus.Rv2Hold.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.Rv2Hold.taskDefKey());
+        log.info("u2...................{}", iacucTaskForm.getAuthor());
+        printOpenTaskList(bizKey);
+        Task task=getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor());
+        if(task==null)
+            log.error("task is null");
+
         Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor()));
+
         completeTaskByTaskService(iacucTaskForm);
     }
 
