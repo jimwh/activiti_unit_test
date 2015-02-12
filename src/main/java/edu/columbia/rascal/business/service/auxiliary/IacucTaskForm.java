@@ -92,11 +92,11 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         this.snapshotId = snapshotId;
     }
 
-    public void setIacucCorrespondence(IacucCorrespondence corr) {
+    public void setCorrespondence(IacucCorrespondence corr) {
         this.iacucCorrespondence = corr;
     }
 
-    public IacucCorrespondence getIacucCorrespondence() {
+    public IacucCorrespondence getCorrespondence() {
         return this.iacucCorrespondence;
     }
 

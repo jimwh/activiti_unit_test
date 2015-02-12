@@ -4,7 +4,7 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              targetNamespace="http://activiti.org/bpmn20">
 
-    <process id="my-process" name="Main Process">
+    <process id="IacucApprovalProcess" name="Review and Approve Protocol">
         <extensionElements>
             <activiti:executionListener event="start"
                                         delegateExpression="${iacucListener}"/>
@@ -58,8 +58,9 @@
                 <cancelEventDefinition/>
             </boundaryEvent>
 
+            <!--
             <userTask id="subcommittee" name="Subcommittee"/>
-
+            -->
 
             <subProcess id="designatedReview" name="Designated Reviewers">
                 <startEvent id="startSubProc"/>
@@ -595,7 +596,7 @@
             <!-- 1st transactional sub-process output -->
             <exclusiveGateway id="t1out"/>
             <sequenceFlow sourceRef="T1" targetRef="t1out"/>
-            <sequenceFlow sourceRef="t1out" targetRef="subcommittee">
+            <sequenceFlow sourceRef="t1out" targetRef="man2">
                 <conditionExpression xsi:type="tFormalExpression"><![CDATA[${T1_OUT == 1}]]></conditionExpression>
             </sequenceFlow>
 

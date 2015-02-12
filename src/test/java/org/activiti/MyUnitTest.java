@@ -24,16 +24,14 @@ import org.slf4j.LoggerFactory;
 public class MyUnitTest {
 
     static final Logger log = LoggerFactory.getLogger(MyUnitTest.class);
-    static final String ProcessDefKey = "my-process";
+    static final String ProcessDefKey = "IacucApprovalProcess";
     static final String START_GATEWAY = "START_GATEWAY";
 
     @Rule
     public ActivitiRule activitiRule = new ActivitiRule();
 
     @Test
-    @Deployment(resources = {
-            "org/activiti/test/my-process.bpmn20.xml"
-    })
+    @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
 
     public void test() {
 
@@ -56,8 +54,8 @@ public class MyUnitTest {
         distToSub(bizKey, "admin");
         approveAppendixA(bizKey, "safetyOfficeDam");
         //holdAppendixB(bizKey, "safetyOfficeHolder");
-        subcommitteeReview(bizKey, "admin");
-        returnToPI(bizKey, "admin");
+        // subcommitteeReview(bizKey, "admin");
+        //returnToPI(bizKey, "admin");
         log.info("taskCount={}", taskCount(bizKey));
         printOpenTaskList(bizKey);
 
@@ -124,7 +122,7 @@ public class MyUnitTest {
         corr1.setSubject("Notification of Return to PI from David");
         corr1.setText("Question about your protocol bla bla ...");
         corr1.apply();
-        iacucTaskForm.setIacucCorrespondence(corr1);
+        iacucTaskForm.setCorrespondence(corr1);
         //
         completeTaskByTaskService(iacucTaskForm);
         // completed return-2-pi, there is no task and no instance
@@ -180,7 +178,7 @@ public class MyUnitTest {
         corr.setSubject("notification of distribution");
         corr.setText("complete review asap ...");
         corr.apply();
-        iacucTaskForm.setIacucCorrespondence(corr);
+        iacucTaskForm.setCorrespondence(corr);
         completeTaskByTaskService(iacucTaskForm);
     }
 
@@ -280,7 +278,7 @@ public class MyUnitTest {
         corr.setSubject("notification of approval");
         corr.setText("Your protocol has been approved.");
         corr.apply();
-        iacucTaskForm.setIacucCorrespondence(corr);
+        iacucTaskForm.setCorrespondence(corr);
         completeTaskByTaskService(iacucTaskForm);
     }
 
@@ -317,7 +315,7 @@ public class MyUnitTest {
             taskService.setVariableLocal(taskId, "iacucTaskForm" + taskId, attribute);
 
         // attach corr to this task
-        IacucCorrespondence corr = iacucTaskForm.getIacucCorrespondence();
+        IacucCorrespondence corr = iacucTaskForm.getCorrespondence();
         if (corr != null) {
             Map<String, String> corrProperties = corr.getProperties();
             if (!corrProperties.isEmpty()) {
@@ -411,7 +409,7 @@ public class MyUnitTest {
             if (corrMap != null && !corrMap.isEmpty()) {
                 IacucCorrespondence corr = new IacucCorrespondence();
                 corr.setProperties(corrMap);
-                iacucTaskForm.setIacucCorrespondence(corr);
+                iacucTaskForm.setCorrespondence(corr);
             }
             listIacucTaskForm.add(iacucTaskForm);
         }
