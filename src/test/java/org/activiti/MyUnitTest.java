@@ -52,18 +52,18 @@ public class MyUnitTest {
         processMap.put("hasAppendixI", false);
         startProtocolProcess(bizKey, processMap);
 
-/*
-        distToSub(bizKey,"admin");
+
+        distToSub(bizKey, "admin");
         approveAppendixA(bizKey, "safetyOfficeDam");
         //holdAppendixB(bizKey, "safetyOfficeHolder");
         subcommitteeReview(bizKey, "admin");
-        // returnToPI(bizKey, "admin");
+        returnToPI(bizKey, "admin");
         log.info("taskCount={}", taskCount(bizKey));
         printOpenTaskList(bizKey);
-*/
+
         //
         // distribute it to reviewers
-
+/*
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         rvList.add("Dave");
@@ -74,12 +74,12 @@ public class MyUnitTest {
         u1Approval(bizKey, "Sam");
         //printCurrentApprovalStatus(bizKey);
 
-        //approveAppendixA(bizKey, "safetyOfficeDam");
+        // approveAppendixA(bizKey, "safetyOfficeDam");
         //approveAppendixB(bizKey, "safetyOfficeHolder");
         // holdAppendixB(bizKey, "safetyOfficeHolder");
 
         // another user approval
-        u2Approval(bizKey, "Dave");
+        // u2Approval(bizKey, "Dave");
         // u2Hold(bizKey, "Dave");
 
         printOpenTaskList(bizKey);
@@ -93,7 +93,7 @@ public class MyUnitTest {
         // try{ Thread.sleep(5000);}catch(InterruptedException e){}
 
         //printCurrentApprovalStatus(bizKey);
-
+*/
         log.info("taskCount={}", taskCount(bizKey));
 
         printHistory(bizKey);
@@ -256,8 +256,8 @@ public class MyUnitTest {
         iacucTaskForm.setTaskDefKey(IacucStatus.Rv2Hold.taskDefKey());
         log.info("u2...................{}", iacucTaskForm.getAuthor());
         printOpenTaskList(bizKey);
-        Task task=getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor());
-        if(task==null)
+        Task task = getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor());
+        if (task == null)
             log.error("task is null");
 
         Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor()));

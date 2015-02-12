@@ -615,7 +615,16 @@
             <!-- <sequenceFlow sourceRef="appendixJoin" targetRef="fooJoin"/> -->
             <sequenceFlow sourceRef="appendixJoin" targetRef="man2"/>
 
-            <sequenceFlow sourceRef="fooJoin" targetRef="finalApproval"/>
+            <sequenceFlow sourceRef="fooJoin" targetRef="finalApproval">
+                <conditionExpression xsi:type="tFormalExpression">${allRvs==true and allAppendicesApproved==true}
+                </conditionExpression>
+            </sequenceFlow>
+
+            <sequenceFlow sourceRef="fooJoin" targetRef="man2">
+                <conditionExpression xsi:type="tFormalExpression">${allRvs==true and allAppendicesApproved==false}
+                </conditionExpression>
+            </sequenceFlow>
+
             <manualTask id="man2" name="it is a stop point for return-2-pi"/>
             <!-- can't directly go return-2-pi, otherwise 2 return2Pi tasks will be created -->
             <sequenceFlow sourceRef="foo" targetRef="man2">
