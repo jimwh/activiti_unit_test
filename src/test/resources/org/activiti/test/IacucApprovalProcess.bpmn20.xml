@@ -37,24 +37,30 @@
 
             <!-- distributeToSub, distributeToDS -->
             <transaction id="T1">
-                <startEvent id="firstStart"/>
-                <parallelGateway id="firstFork"/>
+                <startEvent id="t1start"/>
+                <parallelGateway id="t1Fork"/>
                 <userTask id="distributeToSub" name="Distribute: Subcommittee"
-                          activiti:candidateGroups="IACUC_CAN_DISTRIBUTE_SUBCOMMITTEE"/>
+                          activiti:candidateGroups="IACUC_CAN_DISTRIBUTE_SUBCOMMITTEE">
+                    <extensionElements>
+                        <activiti:taskListener event="complete"
+                                               delegateExpression="${iacucListener}"/>
+                    </extensionElements>
+
+                </userTask>
                 <userTask id="distributeToDS" name="Distribute: Designated Reviewers"
                           activiti:candidateGroups="IACUC_CAN_DISTRIBUTE_DESIGNATED_REVIEWERS"/>
-                <exclusiveGateway id="firstJoin"/>
-                <endEvent id="firstEnd">
+                <exclusiveGateway id="t1Join"/>
+                <endEvent id="t1End">
                     <cancelEventDefinition id="e1"/>
                 </endEvent>
-                <sequenceFlow sourceRef="firstStart" targetRef="firstFork"/>
-                <sequenceFlow sourceRef="firstFork" targetRef="distributeToSub"/>
-                <sequenceFlow sourceRef="firstFork" targetRef="distributeToDS"/>
-                <sequenceFlow sourceRef="distributeToSub" targetRef="firstJoin"/>
-                <sequenceFlow sourceRef="distributeToDS" targetRef="firstJoin"/>
-                <sequenceFlow sourceRef="firstJoin" targetRef="firstEnd"/>
+                <sequenceFlow sourceRef="t1start" targetRef="t1Fork"/>
+                <sequenceFlow sourceRef="t1Fork" targetRef="distributeToSub"/>
+                <sequenceFlow sourceRef="t1Fork" targetRef="distributeToDS"/>
+                <sequenceFlow sourceRef="distributeToSub" targetRef="t1Join"/>
+                <sequenceFlow sourceRef="distributeToDS" targetRef="t1Join"/>
+                <sequenceFlow sourceRef="t1Join" targetRef="t1End"/>
             </transaction>
-            <boundaryEvent id="firstTransactionCancelled" attachedToRef="T1">
+            <boundaryEvent id="t1Cancelled" attachedToRef="T1">
                 <cancelEventDefinition/>
             </boundaryEvent>
 

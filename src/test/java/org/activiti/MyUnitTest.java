@@ -35,30 +35,38 @@ public class MyUnitTest {
 
     public void test() {
 
-        String bizKey = "my-bizKey";
+        String[] bizKeys ={"1", "2", "3", "4", "5"};
+        for(int i=0; i<bizKeys.length; i++) {
+            // for appendix if any
+            Map<String, Object> processMap = new HashMap<String, Object>();
+            processMap.put("hasAppendix", false);
+            processMap.put("hasAppendixA", false);
+            processMap.put("hasAppendixB", false);
+            processMap.put("hasAppendixC", false);
+            processMap.put("hasAppendixD", false);
+            processMap.put("hasAppendixE", false);
+            processMap.put("hasAppendixF", false);
+            processMap.put("hasAppendixG", false);
+            processMap.put("hasAppendixI", false);
+            startProtocolProcess(bizKeys[i], processMap);
 
-        // for appendix if any
-        Map<String, Object> processMap = new HashMap<String, Object>();
-        processMap.put("hasAppendix", true);
-        processMap.put("hasAppendixA", true);
-        processMap.put("hasAppendixB", false);
-        processMap.put("hasAppendixC", false);
-        processMap.put("hasAppendixD", false);
-        processMap.put("hasAppendixE", false);
-        processMap.put("hasAppendixF", false);
-        processMap.put("hasAppendixG", false);
-        processMap.put("hasAppendixI", false);
-        startProtocolProcess(bizKey, processMap);
 
-
-        distToSub(bizKey, "admin");
-        approveAppendixA(bizKey, "safetyOfficeDam");
-        //holdAppendixB(bizKey, "safetyOfficeHolder");
-        // subcommitteeReview(bizKey, "admin");
-        //returnToPI(bizKey, "admin");
-        log.info("taskCount={}", taskCount(bizKey));
-        printOpenTaskList(bizKey);
-
+            distToSub(bizKeys[i], "admin");
+            //approveAppendixA(bizKey, "safetyOfficeDam");
+            //holdAppendixB(bizKey, "safetyOfficeHolder");
+            // subcommitteeReview(bizKey, "admin");
+            //returnToPI(bizKey, "admin");
+            //log.info("taskCount={}", taskCount(bizKey));
+            //printOpenTaskList(bizKey);
+        }
+        Set<String>set=new HashSet<String>();
+        Map<String,Date>map = getBizKeyMeetingDate(set);
+        for(String bizKey: set){
+            log.info("bizKey={}", bizKey);
+        }
+        for(Map.Entry<String,Date>e: map.entrySet()){
+            log.info("bizKey={}, meetingDate={}", e.getKey(),e.getValue());
+        }
         //
         // distribute it to reviewers
 /*
@@ -92,11 +100,10 @@ public class MyUnitTest {
 
         //printCurrentApprovalStatus(bizKey);
 */
-        log.info("taskCount={}", taskCount(bizKey));
+        //log.info("taskCount={}", taskCount(bizKey));
 
-        printHistory(bizKey);
+        //printHistory(bizKey);
     }
-
 
     void submit(String bizKey) {
         IacucTaskForm iacucTaskForm = new IacucTaskForm();
@@ -104,7 +111,7 @@ public class MyUnitTest {
         iacucTaskForm.setAuthor("bob");
         iacucTaskForm.setTaskName(IacucStatus.SUBMIT.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.SUBMIT.taskDefKey());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void returnToPI(String bizKey, String user) {
@@ -124,7 +131,7 @@ public class MyUnitTest {
         corr1.apply();
         iacucTaskForm.setCorrespondence(corr1);
         //
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
         // completed return-2-pi, there is no task and no instance
         // Assert.assertEquals(0, taskCount(bizKey));
         // Assert.assertNull(getProtocolProcessInstance(bizKey));
@@ -138,7 +145,7 @@ public class MyUnitTest {
         iacucTaskForm.setTaskName(IacucStatus.UndoReturnToPI.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.UndoReturnToPI.taskDefKey());
         //
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void distToSub(String bizKey, String user) {
@@ -149,7 +156,7 @@ public class MyUnitTest {
         iacucTaskForm.setTaskName(IacucStatus.DistributeSubcommittee.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.DistributeSubcommittee.taskDefKey());
         iacucTaskForm.setDate(new Date());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void subcommitteeReview(String bizKey, String user) {
@@ -159,7 +166,7 @@ public class MyUnitTest {
         iacucTaskForm.setComment("subcommittee review");
         iacucTaskForm.setTaskName(IacucStatus.SubcommitteeReview.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.SubcommitteeReview.taskDefKey());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void distributeToDS(String bizKey, String user, List<String> reviewerList) {
@@ -179,7 +186,7 @@ public class MyUnitTest {
         corr.setText("complete review asap ...");
         corr.apply();
         iacucTaskForm.setCorrespondence(corr);
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void approveAppendixA(String bizKey, String user) {
@@ -189,7 +196,7 @@ public class MyUnitTest {
         iacucTaskForm.setComment("reviewed and approve appendix-A...");
         iacucTaskForm.setTaskName(IacucStatus.SOPreApproveA.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.SOPreApproveA.taskDefKey());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void approveAppendixB(String bizKey, String user) {
@@ -199,7 +206,7 @@ public class MyUnitTest {
         iacucTaskForm.setComment("reviewed and approve appendix-B...");
         iacucTaskForm.setTaskName(IacucStatus.SOPreApproveB.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.SOPreApproveB.taskDefKey());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void holdAppendixA(String bizKey, String user) {
@@ -209,7 +216,7 @@ public class MyUnitTest {
         iacucTaskForm.setComment("reviewed but hold appendix-A...");
         iacucTaskForm.setTaskName(IacucStatus.SOHoldA.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.SOHoldA.taskDefKey());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void holdAppendixB(String bizKey, String user) {
@@ -219,7 +226,7 @@ public class MyUnitTest {
         iacucTaskForm.setComment("reviewed but hold appendix-B...");
         iacucTaskForm.setTaskName(IacucStatus.SOHoldB.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.SOHoldB.taskDefKey());
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
 
@@ -231,7 +238,7 @@ public class MyUnitTest {
         iacucTaskForm.setTaskName(IacucStatus.Rv1Approval.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.Rv1Approval.taskDefKey());
         Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv1Approval.taskDefKey(), iacucTaskForm.getAuthor()));
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void u2Approval(String bizKey, String u1) {
@@ -242,7 +249,7 @@ public class MyUnitTest {
         iacucTaskForm.setTaskName(IacucStatus.Rv2Approval.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.Rv2Approval.taskDefKey());
         Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Approval.taskDefKey(), iacucTaskForm.getAuthor()));
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void u2Hold(String bizKey, String u) {
@@ -260,7 +267,7 @@ public class MyUnitTest {
 
         Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor()));
 
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void finalApproval(String bizKey, String user) {
@@ -279,7 +286,7 @@ public class MyUnitTest {
         corr.setText("Your protocol has been approved.");
         corr.apply();
         iacucTaskForm.setCorrespondence(corr);
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void undoApproval(String bizKey, String user) {
@@ -290,11 +297,11 @@ public class MyUnitTest {
         iacucTaskForm.setTaskName(IacucStatus.UndoApproval.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.UndoApproval.taskDefKey());
         //
-        completeTaskByTaskService(iacucTaskForm);
+        completeTaskByTaskForm(iacucTaskForm);
     }
 
 
-    void completeTaskByTaskService(IacucTaskForm iacucTaskForm) {
+    void completeTaskByTaskForm(IacucTaskForm iacucTaskForm) {
         Assert.assertNotNull(iacucTaskForm);
         Task task = getTaskByTaskDefKey(iacucTaskForm.getBizKey(), iacucTaskForm.getTaskDefKey());
         Assert.assertNotNull(task);
@@ -314,6 +321,13 @@ public class MyUnitTest {
         if (attribute != null && !attribute.isEmpty())
             taskService.setVariableLocal(taskId, "iacucTaskForm" + taskId, attribute);
 
+        if( IacucStatus.DistributeSubcommittee.isDefKey(iacucTaskForm.getTaskDefKey())) {
+            if (iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
+                log.info("meeting data: {}", iacucTaskForm.getDate());
+                taskService.setVariable(taskId,"meetingDate", iacucTaskForm.getDate());
+
+            }
+        }
         // attach corr to this task
         IacucCorrespondence corr = iacucTaskForm.getCorrespondence();
         if (corr != null) {
@@ -524,6 +538,7 @@ public class MyUnitTest {
                 .processDefinitionKey(ProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
                 .processInstanceName(instanceName)
+                .includeProcessVariables()
                 .singleResult();
     }
 
@@ -545,6 +560,7 @@ public class MyUnitTest {
 
     String getCurrentProcessInstanceId(String bizKey) {
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
+
         return instance != null ? instance.getProcessInstanceId() : null;
     }
 
@@ -558,8 +574,9 @@ public class MyUnitTest {
         HistoricTaskInstanceQuery query = historyService
                 .createHistoricTaskInstanceQuery()
                         // .processDefinitionKey(ProcessDefKey)
-                        // .processInstanceBusinessKey(bizKey)
-                .processVariableValueEquals("BusinessKey", bizKey)
+                .processInstanceBusinessKey(bizKey)
+                // for sub-process
+                //.processVariableValueEquals("BusinessKey", bizKey)
                         // .processInstanceId(processId)
                 .includeTaskLocalVariables()
                 .orderByHistoricTaskInstanceEndTime()
@@ -594,6 +611,32 @@ public class MyUnitTest {
             log.info(form.toString());
         }
         log.info("...............................................................\n");
+    }
+
+    /**
+     *
+     * @param bizKeys fill out protocolId
+     * @return Map<String,Date> protocolId, meeting date
+     */
+    Map<String,Date> getBizKeyMeetingDate(Set<String> bizKeys) {
+        Map<String,Date>bizKeyMeetingDate=new HashMap<String, Date>();
+        List<ProcessInstance> list=activitiRule.getRuntimeService()
+                .createProcessInstanceQuery()
+                .processDefinitionKey(ProcessDefKey)
+                .processInstanceName(IacucStatus.SUBMIT.name())
+                .includeProcessVariables()
+                .list();
+        for (ProcessInstance instance:list) {
+            String bizKey=instance.getBusinessKey();
+            bizKeys.add(bizKey);
+            Map<String,Object>map=instance.getProcessVariables();
+            if( map==null || map.isEmpty()) continue;
+            if( map.get("meetingDate")!=null ) {
+                Date date = (Date) map.get("meetingDate");
+                bizKeyMeetingDate.put(bizKey, date);
+            }
+        }
+        return bizKeyMeetingDate;
     }
 
 }
