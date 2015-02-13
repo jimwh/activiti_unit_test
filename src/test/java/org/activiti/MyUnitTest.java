@@ -321,13 +321,14 @@ public class MyUnitTest {
         if (attribute != null && !attribute.isEmpty())
             taskService.setVariableLocal(taskId, "iacucTaskForm" + taskId, attribute);
 
+        /*
         if( IacucStatus.DistributeSubcommittee.isDefKey(iacucTaskForm.getTaskDefKey())) {
             if (iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
                 log.info("meeting data: {}", iacucTaskForm.getDate());
                 taskService.setVariable(taskId,"meetingDate", iacucTaskForm.getDate());
-
             }
         }
+        */
         // attach corr to this task
         IacucCorrespondence corr = iacucTaskForm.getCorrespondence();
         if (corr != null) {

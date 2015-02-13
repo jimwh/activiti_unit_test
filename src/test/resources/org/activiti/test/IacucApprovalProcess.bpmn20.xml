@@ -602,7 +602,7 @@
             <!-- 1st transactional sub-process output -->
             <exclusiveGateway id="t1out"/>
             <sequenceFlow sourceRef="T1" targetRef="t1out"/>
-            <sequenceFlow sourceRef="t1out" targetRef="man2">
+            <sequenceFlow sourceRef="t1out" targetRef="stop">
                 <conditionExpression xsi:type="tFormalExpression"><![CDATA[${T1_OUT == 1}]]></conditionExpression>
             </sequenceFlow>
 
@@ -620,21 +620,21 @@
             <inclusiveGateway id="fooJoin"/>
 
             <!-- <sequenceFlow sourceRef="appendixJoin" targetRef="fooJoin"/> -->
-            <sequenceFlow sourceRef="appendixJoin" targetRef="man2"/>
+            <sequenceFlow sourceRef="appendixJoin" targetRef="stop"/>
 
             <sequenceFlow sourceRef="fooJoin" targetRef="finalApproval">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==true and allAppendicesApproved==true}
                 </conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="fooJoin" targetRef="man2">
+            <sequenceFlow sourceRef="fooJoin" targetRef="stop">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==true and allAppendicesApproved==false}
                 </conditionExpression>
             </sequenceFlow>
 
-            <manualTask id="man2" name="it is a stop point for return-2-pi"/>
+            <manualTask id="stop" name="it is a stop point for return-2-pi"/>
             <!-- can't directly go return-2-pi, otherwise 2 return2Pi tasks will be created -->
-            <sequenceFlow sourceRef="foo" targetRef="man2">
+            <sequenceFlow sourceRef="foo" targetRef="stop">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==false}
                 </conditionExpression>
             </sequenceFlow>
