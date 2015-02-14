@@ -8,6 +8,8 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 
 public class IacucListener implements TaskListener, ExecutionListener {
 
@@ -43,6 +45,14 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
         if (!"complete".equals(eventName)) {
             return;
+        }
+
+        if (IacucStatus.DistributeSubcommittee.isDefKey(taskDefKey)) {
+            Object obj=delegateTask.getVariableLocal("iacucTaskForm"+taskId);
+            if(obj != null) {
+                Map<String,Object>map=(Map<String,Object>)obj;
+                log.info("meetingDate={}", map.get("date"));
+            }
         }
 
         if (IacucStatus.RETURNTOPI.isDefKey(taskDefKey)) {
