@@ -35,8 +35,8 @@ public class MyUnitTest {
 
     public void test() {
 
-        String[] bizKeys ={"1", "2", "3", "4", "5"};
-        for(int i=0; i<bizKeys.length; i++) {
+        String[] bizKeys = {"1", "2", "3", "4", "5"};
+        for (int i = 0; i < bizKeys.length; i++) {
             // for appendix if any
             Map<String, Object> processMap = new HashMap<String, Object>();
             processMap.put("hasAppendix", false);
@@ -59,13 +59,13 @@ public class MyUnitTest {
             //log.info("taskCount={}", taskCount(bizKey));
             //printOpenTaskList(bizKey);
         }
-        Set<String>set=new HashSet<String>();
-        Map<String,Date>map = getBizKeyMeetingDate(set);
-        for(String bizKey: set){
+        Set<String> set = new HashSet<String>();
+        Map<String, Date> map = getBizKeyMeetingDate(set);
+        for (String bizKey : set) {
             log.info("bizKey={}", bizKey);
         }
-        for(Map.Entry<String,Date>e: map.entrySet()){
-            log.info("bizKey={}, meetingDate={}", e.getKey(),e.getValue());
+        for (Map.Entry<String, Date> e : map.entrySet()) {
+            log.info("bizKey={}, meetingDate={}", e.getKey(), e.getValue());
         }
         //
         // distribute it to reviewers
@@ -321,10 +321,10 @@ public class MyUnitTest {
         if (attribute != null && !attribute.isEmpty())
             taskService.setVariableLocal(taskId, "iacucTaskForm" + taskId, attribute);
 
-        if( IacucStatus.DistributeSubcommittee.isDefKey(iacucTaskForm.getTaskDefKey())) {
+        if (IacucStatus.DistributeSubcommittee.isDefKey(iacucTaskForm.getTaskDefKey())) {
             if (iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
                 log.info("meeting data: {}", iacucTaskForm.getDate());
-                taskService.setVariable(taskId,"meetingDate", iacucTaskForm.getDate());
+                taskService.setVariable(taskId, "meetingDate", iacucTaskForm.getDate());
 
             }
         }
@@ -575,8 +575,8 @@ public class MyUnitTest {
                 .createHistoricTaskInstanceQuery()
                         // .processDefinitionKey(ProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
-                // for sub-process
-                //.processVariableValueEquals("BusinessKey", bizKey)
+                        // for sub-process
+                        //.processVariableValueEquals("BusinessKey", bizKey)
                         // .processInstanceId(processId)
                 .includeTaskLocalVariables()
                 .orderByHistoricTaskInstanceEndTime()
@@ -614,24 +614,23 @@ public class MyUnitTest {
     }
 
     /**
-     *
      * @param bizKeys fill out protocolId
      * @return Map<String,Date> protocolId, meeting date
      */
-    Map<String,Date> getBizKeyMeetingDate(Set<String> bizKeys) {
-        Map<String,Date>bizKeyMeetingDate=new HashMap<String, Date>();
-        List<ProcessInstance> list=activitiRule.getRuntimeService()
+    Map<String, Date> getBizKeyMeetingDate(Set<String> bizKeys) {
+        Map<String, Date> bizKeyMeetingDate = new HashMap<String, Date>();
+        List<ProcessInstance> list = activitiRule.getRuntimeService()
                 .createProcessInstanceQuery()
                 .processDefinitionKey(ProcessDefKey)
                 .processInstanceName(IacucStatus.SUBMIT.name())
                 .includeProcessVariables()
                 .list();
-        for (ProcessInstance instance:list) {
-            String bizKey=instance.getBusinessKey();
+        for (ProcessInstance instance : list) {
+            String bizKey = instance.getBusinessKey();
             bizKeys.add(bizKey);
-            Map<String,Object>map=instance.getProcessVariables();
-            if( map==null || map.isEmpty()) continue;
-            if( map.get("meetingDate")!=null ) {
+            Map<String, Object> map = instance.getProcessVariables();
+            if (map == null || map.isEmpty()) continue;
+            if (map.get("meetingDate") != null) {
                 Date date = (Date) map.get("meetingDate");
                 bizKeyMeetingDate.put(bizKey, date);
             }
