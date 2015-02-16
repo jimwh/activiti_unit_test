@@ -572,7 +572,7 @@
             </sequenceFlow>
 
             <inclusiveGateway id="appendixJoin"/>
-            <!-- <sequenceFlow sourceRef="TP" targetRef="appendixJoin"/> -->
+
             <sequenceFlow sourceRef="appendixATransaction" targetRef="appendixJoin"/>
             <sequenceFlow sourceRef="appendixBTransaction" targetRef="appendixJoin"/>
             <sequenceFlow sourceRef="appendixCTransaction" targetRef="appendixJoin"/>
@@ -581,9 +581,6 @@
             <sequenceFlow sourceRef="appendixFTransaction" targetRef="appendixJoin"/>
             <sequenceFlow sourceRef="appendixGTransaction" targetRef="appendixJoin"/>
             <sequenceFlow sourceRef="appendixITransaction" targetRef="appendixJoin"/>
-            <!--
-            <sequenceFlow sourceRef="appendixJoin" targetRef="tpJoin"/>
-            -->
 
             <inclusiveGateway id="tpFork"/>
             <exclusiveGateway id="tpJoin"/>
@@ -610,16 +607,13 @@
                 <conditionExpression xsi:type="tFormalExpression"><![CDATA[${T1_OUT == 2}]]></conditionExpression>
             </sequenceFlow>
 
-            <exclusiveGateway id="foo"/>
-            <sequenceFlow sourceRef="designatedReview" targetRef="foo"/>
-            <sequenceFlow sourceRef="foo" targetRef="fooJoin">
+            <sequenceFlow sourceRef="designatedReview" targetRef="fooJoin">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==true}
                 </conditionExpression>
             </sequenceFlow>
 
             <inclusiveGateway id="fooJoin"/>
 
-            <!-- <sequenceFlow sourceRef="appendixJoin" targetRef="fooJoin"/> -->
             <sequenceFlow sourceRef="appendixJoin" targetRef="stop"/>
 
             <sequenceFlow sourceRef="fooJoin" targetRef="finalApproval">
@@ -634,7 +628,7 @@
 
             <manualTask id="stop" name="it is a stop point for return-2-pi"/>
             <!-- can't directly go return-2-pi, otherwise 2 return2Pi tasks will be created -->
-            <sequenceFlow sourceRef="foo" targetRef="stop">
+            <sequenceFlow sourceRef="designatedReview" targetRef="stop">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==false}
                 </conditionExpression>
             </sequenceFlow>

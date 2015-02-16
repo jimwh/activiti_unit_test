@@ -16,6 +16,15 @@ public class IacucListener implements TaskListener, ExecutionListener {
     private static final Logger log = LoggerFactory.getLogger(IacucListener.class);
 
     private static final String AllRvs = "allRvs";
+    private static final String hasAppendixA = "hasAppendixA";
+    private static final String hasAppendixB = "hasAppendixB";
+    private static final String hasAppendixC = "hasAppendixC";
+    private static final String hasAppendixD = "hasAppendixD";
+    private static final String hasAppendixE = "hasAppendixE";
+    private static final String hasAppendixF = "hasAppendixF";
+    private static final String hasAppendixG = "hasAppendixG";
+    private static final String hasAppendixI = "hasAppendixI";
+
     private static final String AllAppendicesApproved = "allAppendicesApproved";
     private static final String appendixAApproved = "aApproved";
     private static final String appendixBApproved = "bAApproved";
@@ -203,55 +212,89 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
     private void setUpAppendixApproveStatus(DelegateExecution exe) {
         boolean bool = true;
-        if ((Boolean) exe.getVariable("hasAppendixA")) {
+
+        if(exe.getVariable(hasAppendixA)==null) {
+            exe.setVariable(hasAppendixA, false);
+            exe.setVariable(appendixAApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixA)) {
             exe.setVariable(appendixAApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixAApproved, true);
         }
 
-        if ((Boolean) exe.getVariable("hasAppendixB")) {
+        if(exe.getVariable(hasAppendixB)==null) {
+            exe.setVariable(hasAppendixB, false);
+            exe.setVariable(appendixAApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixB)) {
             exe.setVariable(appendixBApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixBApproved, true);
         }
 
-        if ((Boolean) exe.getVariable("hasAppendixC")) {
+        if(exe.getVariable(hasAppendixC)==null) {
+            exe.setVariable(hasAppendixC, false);
+            exe.setVariable(appendixCApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixC)) {
             exe.setVariable(appendixCApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixCApproved, true);
         }
 
-        if ((Boolean) exe.getVariable("hasAppendixD")) {
+        if(exe.getVariable(hasAppendixD)==null) {
+            exe.setVariable(hasAppendixD, false);
+            exe.setVariable(appendixDApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixD)) {
             exe.setVariable(appendixDApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixDApproved, true);
         }
 
-        if ((Boolean) exe.getVariable("hasAppendixE")) {
+        if(exe.getVariable(hasAppendixE)==null) {
+            exe.setVariable(hasAppendixE, false);
+            exe.setVariable(appendixEApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixE)) {
             exe.setVariable(appendixEApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixEApproved, true);
         }
 
-        if ((Boolean) exe.getVariable("hasAppendixF")) {
+        if(exe.getVariable(hasAppendixF)==null) {
+            exe.setVariable(hasAppendixF, false);
+            exe.setVariable(appendixFApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixF)) {
             exe.setVariable(appendixFApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixFApproved, true);
         }
 
-        if ((Boolean) exe.getVariable("hasAppendixG")) {
+        if(exe.getVariable(hasAppendixG)==null) {
+            exe.setVariable(hasAppendixG, false);
+            exe.setVariable(appendixGApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixG)) {
             exe.setVariable(appendixGApproved, false);
             bool = false;
         } else {
             exe.setVariable(appendixGApproved, true);
         }
-        if ((Boolean) exe.getVariable("hasAppendixI")) {
+
+        if(exe.getVariable(hasAppendixI)==null) {
+            exe.setVariable(hasAppendixI, false);
+            exe.setVariable(appendixIApproved, true);
+        }
+        else if ((Boolean) exe.getVariable(hasAppendixI)) {
             exe.setVariable(appendixIApproved, false);
             bool = false;
         } else {
@@ -259,5 +302,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
         }
 
         exe.setVariable(AllAppendicesApproved, bool);
+        exe.setVariable("hasAppendix", !bool);
+
     }
 }

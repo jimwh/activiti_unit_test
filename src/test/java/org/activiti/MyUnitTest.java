@@ -32,8 +32,80 @@ public class MyUnitTest {
 
     @Test
     @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
-
     public void test() {
+
+        String bizKey="foo";
+        Map<String,Object>hasAppendix=new HashMap<String, Object>();
+        hasAppendix.put("hasAppendixA", true);
+        hasAppendix.put("hasAppendixB", true);
+
+        startProtocolProcess(bizKey, hasAppendix);
+
+        // distribute it to reviewers
+        List<String> rvList = new ArrayList<String>();
+        rvList.add("Sam");
+        rvList.add("Dave");
+        distributeToDesignatedReviewer(bizKey, "admin", rvList);
+        //printOpenTaskList(bizKey);
+
+        // reviewer approval
+        // u1Approval(bizKey, "Sam");
+        approveAppendixA(bizKey, "safetyOfficeDam");
+        //holdAppendixB(bizKey, "safetyOfficeHolder");
+        approveAppendixB(bizKey, "safetyOfficeHolder");
+        // u2Approval(bizKey, "Dave");
+
+        printOpenTaskList(bizKey);
+
+        // u2Hold(bizKey, "Dave");
+
+        //finalApproval(bizKey, "admin");
+        // undoApproval(bizKey, "admin");
+        // returnToPI(bizKey, "admin");
+
+        //printCurrentApprovalStatus(bizKey);
+
+        // try{ Thread.sleep(5000);}catch(InterruptedException e){}
+
+        //printCurrentApprovalStatus(bizKey);
+
+        //log.info("taskCount={}", taskCount(bizKey));
+
+        //printHistory(bizKey);
+
+    }
+
+    public void dist2SubcommitteeWithAppendix() {
+        String bizKey="foo";
+        Map<String,Object>hasAppendix=new HashMap<String, Object>();
+        hasAppendix.put("hasAppendixA", true);
+        startProtocolProcess(bizKey, hasAppendix);
+        distToSubcommittee(bizKey, "admin");
+        log.info("after distribute subcommittee open tasks:");
+        printOpenTaskList(bizKey);
+        //approveAppendixA(bizKey, "safetyOfficeDam");
+        //holdAppendixB(bizKey, "safetyOfficeHolder");
+        //subcommitteeReview(bizKey, "admin");
+        returnToPI(bizKey, "admin");
+        log.info("taskCount={}", taskCount(bizKey));
+        log.info("after return to PI open tasks:");
+        printOpenTaskList(bizKey);
+    }
+
+    public void noAppendix() {
+        String bizKey="foo";
+        startProtocolProcess(bizKey);
+
+        distToSubcommittee(bizKey, "admin");
+        //approveAppendixA(bizKey, "safetyOfficeDam");
+        //holdAppendixB(bizKey, "safetyOfficeHolder");
+        // subcommitteeReview(bizKey, "admin");
+        //returnToPI(bizKey, "admin");
+        log.info("taskCount={}", taskCount(bizKey));
+        printOpenTaskList(bizKey);
+    }
+
+    public void foo() {
 
         String[] bizKeys ={"1", "2", "3", "4", "5"};
         for(int i=0; i<bizKeys.length; i++) {
@@ -51,7 +123,7 @@ public class MyUnitTest {
             startProtocolProcess(bizKeys[i], processMap);
 
 
-            distToSub(bizKeys[i], "admin");
+            distToSubcommittee(bizKeys[i], "admin");
             //approveAppendixA(bizKey, "safetyOfficeDam");
             //holdAppendixB(bizKey, "safetyOfficeHolder");
             // subcommitteeReview(bizKey, "admin");
@@ -68,41 +140,6 @@ public class MyUnitTest {
             log.info("bizKey={}, meetingDate={}", e.getKey(),e.getValue());
         }
         //
-        // distribute it to reviewers
-/*
-        List<String> rvList = new ArrayList<String>();
-        rvList.add("Sam");
-        rvList.add("Dave");
-        distributeToDS(bizKey, "admin", rvList);
-        //printOpenTaskList(bizKey);
-
-        // reviewer approval
-        u1Approval(bizKey, "Sam");
-        //printCurrentApprovalStatus(bizKey);
-
-        // approveAppendixA(bizKey, "safetyOfficeDam");
-        //approveAppendixB(bizKey, "safetyOfficeHolder");
-        // holdAppendixB(bizKey, "safetyOfficeHolder");
-
-        // another user approval
-        // u2Approval(bizKey, "Dave");
-        // u2Hold(bizKey, "Dave");
-
-        printOpenTaskList(bizKey);
-
-        //finalApproval(bizKey, "admin");
-        // undoApproval(bizKey, "admin");
-        // returnToPI(bizKey, "admin");
-
-        //printCurrentApprovalStatus(bizKey);
-
-        // try{ Thread.sleep(5000);}catch(InterruptedException e){}
-
-        //printCurrentApprovalStatus(bizKey);
-*/
-        //log.info("taskCount={}", taskCount(bizKey));
-
-        //printHistory(bizKey);
     }
 
     void submit(String bizKey) {
@@ -148,7 +185,7 @@ public class MyUnitTest {
         completeTaskByTaskForm(iacucTaskForm);
     }
 
-    void distToSub(String bizKey, String user) {
+    void distToSubcommittee(String bizKey, String user) {
         IacucDistributeSubcommitteeForm iacucTaskForm = new IacucDistributeSubcommitteeForm();
         iacucTaskForm.setBizKey(bizKey);
         iacucTaskForm.setAuthor(user);
@@ -169,7 +206,7 @@ public class MyUnitTest {
         completeTaskByTaskForm(iacucTaskForm);
     }
 
-    void distributeToDS(String bizKey, String user, List<String> reviewerList) {
+    void distributeToDesignatedReviewer(String bizKey, String user, List<String> reviewerList) {
         IacucDistributeReviewerForm iacucTaskForm = new IacucDistributeReviewerForm();
         iacucTaskForm.setBizKey(bizKey);
         iacucTaskForm.setAuthor(user);
@@ -488,6 +525,17 @@ public class MyUnitTest {
     }
 
     // protocol approval process
+    void startProtocolProcess(String bizKey) {
+        ProcessInstance instance = getProtocolProcessInstance(bizKey);
+        Assert.assertNull("dude i am expecting null", instance);
+        Map<String, Object>processMap=new HashMap<String, Object>();
+        processMap.put(START_GATEWAY, IacucStatus.SUBMIT.gatewayValue());
+        // for call activity
+        processMap.put("BusinessKey", bizKey);
+        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.SUBMIT.name());
+        Assert.assertNotNull(processInstance);
+        submit(bizKey);
+    }
     void startProtocolProcess(String bizKey, Map<String, Object> processMap) {
         Assert.assertNotNull("dude can't be null", processMap);
 

@@ -1,8 +1,6 @@
 package edu.columbia.rascal.business.service.auxiliary;
 
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +8,6 @@ import java.util.Map;
 
 public class IacucDistributeReviewerForm extends IacucTaskForm {
 
-    private static final Logger log= LoggerFactory.getLogger(IacucDistributeReviewerForm.class);
     @Override
     public Map<String, Object> getTaskVariables() {
         List<String>reviewerList=getReviewerList();
@@ -28,9 +25,6 @@ public class IacucDistributeReviewerForm extends IacucTaskForm {
             map.put("rv"+suffix, rv);
         }
 
-        for(Map.Entry<String,Object>me: map.entrySet()) {
-            log.info("key={}, value={}", me.getKey(),me.getValue());
-        }
         return map;
     }
 
