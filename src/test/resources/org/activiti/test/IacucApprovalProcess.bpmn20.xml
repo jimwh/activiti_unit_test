@@ -288,7 +288,7 @@
             </userTask>
 
 
-            <transaction id="animalOrderUndoApprovalTransaction">
+            <transaction id="animalOrderOrUndoApproval">
                 <startEvent id="aouStart"/>
                 <endEvent id="aouEnd">
                     <cancelEventDefinition/>
@@ -316,7 +316,7 @@
 
                 <sequenceFlow sourceRef="aouJoin" targetRef="aouEnd"/>
             </transaction>
-            <boundaryEvent id="aouCancelled" attachedToRef="animalOrderUndoApprovalTransaction">
+            <boundaryEvent id="aouCancelled" attachedToRef="animalOrderOrUndoApproval">
                 <cancelEventDefinition/>
             </boundaryEvent>
 
@@ -661,12 +661,12 @@
                 </conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="finalApproval" targetRef="animalOrderUndoApprovalTransaction"/>
-            <sequenceFlow sourceRef="animalOrderUndoApprovalTransaction" targetRef="finalApproval">
+            <sequenceFlow sourceRef="finalApproval" targetRef="animalOrderOrUndoApproval"/>
+            <sequenceFlow sourceRef="animalOrderOrUndoApproval" targetRef="finalApproval">
                 <conditionExpression xsi:type="tFormalExpression">${undoApproval==true}
                 </conditionExpression>
             </sequenceFlow>
-            <sequenceFlow sourceRef="animalOrderUndoApprovalTransaction" targetRef="tpJoin">
+            <sequenceFlow sourceRef="animalOrderOrUndoApproval" targetRef="tpJoin">
                 <conditionExpression xsi:type="tFormalExpression">${undoApproval==false}
                 </conditionExpression>
             </sequenceFlow>
