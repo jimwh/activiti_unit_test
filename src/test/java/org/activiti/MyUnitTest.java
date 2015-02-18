@@ -2,7 +2,7 @@ package org.activiti;
 
 import java.util.*;
 
-import edu.columbia.rascal.business.service.auxiliary.*;
+import edu.columbia.rascal.business.service.review.iacuc.*;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
@@ -33,6 +33,27 @@ public class MyUnitTest {
     @Test
     @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
     public void test() {
+        String bizKey="foo";
+        startProtocolProcess(bizKey);
+        List<String> rvList = new ArrayList<String>();
+        rvList.add("Sam");
+        rvList.add("Dave");
+        distributeToDesignatedReviewer(bizKey, "admin", rvList);
+        u1Approval(bizKey, "Sam");
+        u2Approval(bizKey, "Dave");
+        printOpenTaskList(bizKey);
+        finalApproval(bizKey, "admin");
+        printOpenTaskList(bizKey);
+        // returnToPI(bizKey, "admin");
+        // undoApproval(bizKey, "admin");
+        animalOrder(bizKey, "admin");
+        printOpenTaskList(bizKey);
+        printHistory(bizKey);
+
+    }
+
+
+    public void fooTest() {
 
         String bizKey="foo";
         Map<String,Object>hasAppendix=new HashMap<String, Object>();
@@ -337,6 +358,16 @@ public class MyUnitTest {
         completeTaskByTaskForm(iacucTaskForm);
     }
 
+    void animalOrder(String bizKey, String user) {
+        IacucTaskForm iacucTaskForm = new IacucTaskForm();
+        iacucTaskForm.setBizKey(bizKey);
+        iacucTaskForm.setAuthor(user);
+        iacucTaskForm.setComment("order animal now");
+        iacucTaskForm.setTaskName(IacucStatus.AnimalOrder.statusName());
+        iacucTaskForm.setTaskDefKey(IacucStatus.AnimalOrder.taskDefKey());
+        //
+        completeTaskByTaskForm(iacucTaskForm);
+    }
 
     void completeTaskByTaskForm(IacucTaskForm iacucTaskForm) {
         Assert.assertNotNull(iacucTaskForm);
@@ -507,6 +538,7 @@ public class MyUnitTest {
     }
 
     void printOpenTaskList(String bizKey) {
+        log.info("open tasks:");
         List<Task> taskList = activitiRule.getTaskService()
                 .createTaskQuery()
                 .processDefinitionKey(ProcessDefKey)

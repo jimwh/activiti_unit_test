@@ -1,4 +1,4 @@
-package edu.columbia.rascal.business.service.auxiliary;
+package edu.columbia.rascal.business.service.review.iacuc;
 
 import org.junit.Assert;
 

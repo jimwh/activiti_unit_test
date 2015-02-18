@@ -287,12 +287,39 @@
                 </extensionElements>
             </userTask>
 
-            <userTask id="undoApproval" name="Undo Approval">
-                <extensionElements>
-                    <activiti:taskListener event="complete"
-                                           delegateExpression="${iacucListener}"/>
-                </extensionElements>
-            </userTask>
+
+            <transaction id="animalOrderUndoApprovalTransaction">
+                <startEvent id="aouStart"/>
+                <endEvent id="aouEnd">
+                    <cancelEventDefinition/>
+                </endEvent>
+                <parallelGateway id="aouFork"/>
+                <exclusiveGateway id="aouJoin"/>
+                <userTask id="undoApproval" name="Undo Approval" activiti:assignee="${rv5}">
+                    <extensionElements>
+                        <activiti:taskListener event="complete"
+                                               delegateExpression="${iacucListener}"/>
+                    </extensionElements>
+                </userTask>
+                <userTask id="animalOrder" name="Animal Order A-Tone">
+                    <extensionElements>
+                        <activiti:taskListener event="complete"
+                                               delegateExpression="${iacucListener}"/>
+                    </extensionElements>
+                </userTask>
+                <sequenceFlow sourceRef="aouStart" targetRef="aouFork"/>
+                <sequenceFlow sourceRef="aouFork" targetRef="animalOrder"/>
+                <sequenceFlow sourceRef="aouFork" targetRef="undoApproval"/>
+
+                <sequenceFlow sourceRef="animalOrder" targetRef="aouJoin"/>
+                <sequenceFlow sourceRef="undoApproval" targetRef="aouJoin"/>
+
+                <sequenceFlow sourceRef="aouJoin" targetRef="aouEnd"/>
+            </transaction>
+            <boundaryEvent id="aouCancelled" attachedToRef="animalOrderUndoApprovalTransaction">
+                <cancelEventDefinition/>
+            </boundaryEvent>
+
             <boundaryEvent id="undoApprovalTimerBoundary"
                            name="Undo Approval timeout"
                            cancelActivity="true"
@@ -633,12 +660,12 @@
                 </conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="finalApproval" targetRef="undoApproval"/>
-            <sequenceFlow sourceRef="undoApproval" targetRef="finalApproval">
+            <sequenceFlow sourceRef="finalApproval" targetRef="animalOrderUndoApprovalTransaction"/>
+            <sequenceFlow sourceRef="animalOrderUndoApprovalTransaction" targetRef="finalApproval">
                 <conditionExpression xsi:type="tFormalExpression">${undoApproval==true}
                 </conditionExpression>
             </sequenceFlow>
-            <sequenceFlow sourceRef="undoApproval" targetRef="tpJoin">
+            <sequenceFlow sourceRef="animalOrderUndoApprovalTransaction" targetRef="tpJoin">
                 <conditionExpression xsi:type="tFormalExpression">${undoApproval==false}
                 </conditionExpression>
             </sequenceFlow>

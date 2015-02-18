@@ -1,4 +1,4 @@
-package edu.columbia.rascal.business.service.auxiliary;
+package edu.columbia.rascal.business.service.review.iacuc;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -1153,8 +1153,29 @@ public enum IacucStatus {
         public int gatewayValue() {
             return 10;
         }
-    };
+    },
 
+    AnimalOrder("Animal Order A-Tone") {
+        @Override
+        public String taskDefKey() {
+            return "animalOrder";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 10;
+        }
+    };
 
     private String codeName;
 
