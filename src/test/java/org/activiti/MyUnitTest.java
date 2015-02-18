@@ -39,7 +39,10 @@ public class MyUnitTest {
         rvList.add("Sam");
         rvList.add("Dave");
         distributeToDesignatedReviewer(bizKey, "admin", rvList);
+        printOpenTaskList(bizKey);
+        //
         u1Approval(bizKey, "Sam");
+        /*
         u2Approval(bizKey, "Dave");
         printOpenTaskList(bizKey);
         finalApproval(bizKey, "admin");
@@ -47,6 +50,7 @@ public class MyUnitTest {
         // returnToPI(bizKey, "admin");
         // undoApproval(bizKey, "admin");
         animalOrder(bizKey, "admin");
+        */
         printOpenTaskList(bizKey);
         printHistory(bizKey);
 
@@ -545,7 +549,7 @@ public class MyUnitTest {
                 .processInstanceBusinessKey(bizKey)
                 .list();
         for (Task task : taskList) {
-            log.info("taskDefKey=" + task.getTaskDefinitionKey());
+            log.info("taskDefKey={},taskName={}",task.getTaskDefinitionKey(), task.getName());
         }
     }
 
