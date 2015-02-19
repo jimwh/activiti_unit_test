@@ -39,14 +39,9 @@ public class MyUnitTest {
         rvList.add("Sam");
         rvList.add("Dave");
         distributeToDesignatedReviewer(bizKey, "admin", rvList);
-        printOpenTaskList(bizKey);
-        printReviewTaskByAssignee("Sam");
-        /*
-        u2Hold(bizKey, "Dave");
         u1Approval(bizKey, "Sam");
         u2Approval(bizKey, "Dave");
         printOpenTaskList(bizKey);
-
         finalApproval(bizKey, "admin");
         printOpenTaskList(bizKey);
         // returnToPI(bizKey, "admin");
@@ -54,9 +49,8 @@ public class MyUnitTest {
         animalOrder(bizKey, "admin");
         printOpenTaskList(bizKey);
         printHistory(bizKey);
-        */
-    }
 
+    }
 
 
     public void fooTest() {
@@ -392,11 +386,9 @@ public class MyUnitTest {
 
         // attach attribute to this task
         Map<String, String> attribute = iacucTaskForm.getProperties();
-        if (attribute != null && !attribute.isEmpty()) {
+        if (attribute != null && !attribute.isEmpty())
             taskService.setVariableLocal(taskId, "iacucTaskForm" + taskId, attribute);
-            taskService.setVariableLocal(taskId, "bizKey", iacucTaskForm.getBizKey());
-            log.info("fffffffffffff bizKey={}", iacucTaskForm.getBizKey());
-        }
+
         if( IacucStatus.DistributeSubcommittee.isDefKey(iacucTaskForm.getTaskDefKey())) {
             if (iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
                 log.info("meeting data: {}", iacucTaskForm.getDate());
@@ -554,24 +546,6 @@ public class MyUnitTest {
                 .list();
         for (Task task : taskList) {
             log.info("taskDefKey=" + task.getTaskDefinitionKey());
-        }
-    }
-
-    void printReviewTaskByAssignee(String assignee) {
-        log.info("printReviewTaskByAssignee:");
-        List<Task> taskList = activitiRule.getTaskService()
-                .createTaskQuery()
-                .processDefinitionKey(ProcessDefKey)
-                .taskDefinitionKeyLike("rv%")
-                .taskAssignee(assignee)
-                .includeTaskLocalVariables()
-                .list();
-        for (Task task : taskList) {
-            Map<String,Object>localMap=task.getTaskLocalVariables();
-            log.info("taskDefKey={}, bizKey={}",task.getTaskDefinitionKey(), localMap.get("bizKey"));
-            for(Map.Entry<String, Object>e: localMap.entrySet()) {
-                log.info("k={}, v={}",e.getKey(),e.getValue());
-            }
         }
     }
 

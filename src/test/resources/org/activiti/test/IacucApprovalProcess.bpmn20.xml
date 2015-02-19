@@ -80,15 +80,15 @@
                     </endEvent>
                     <parallelGateway id="rv1Fork"/>
                     <exclusiveGateway id="rv1Join"/>
-                    <userTask id="rv1Approval" name="Designated Reviewer Approval" activiti:assignee="${rv1}"/>
-                    <userTask id="rv1Hold" name="Designated Reviewer Hold" activiti:assignee="${rv1}">
+                    <userTask id="rv1Approval" name="Designated Reviewer Approval (${rv1})" activiti:assignee="${rv1}"/>
+                    <userTask id="rv1Hold" name="Designated Reviewer Hold (${rv1})" activiti:assignee="${rv1}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
                                                    delegateExpression="${iacucListener}"/>
                         </extensionElements>
                     </userTask>
 
-                    <userTask id="rv1ReqFullReview" name="Designated Reviewer Request Full Review"
+                    <userTask id="rv1ReqFullReview" name="Designated Reviewer Request Full Review (${rv1})"
                               activiti:assignee="${rv1}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
@@ -116,15 +116,15 @@
                     </endEvent>
                     <parallelGateway id="rv2Fork"/>
                     <exclusiveGateway id="rv2Join"/>
-                    <userTask id="rv2Approval" name="Designated Reviewer Approval" activiti:assignee="${rv2}"/>
-                    <userTask id="rv2Hold" name="Designated Reviewer Hold" activiti:assignee="${rv2}">
+                    <userTask id="rv2Approval" name="Designated Reviewer Approval (${rv2})" activiti:assignee="${rv2}"/>
+                    <userTask id="rv2Hold" name="Designated Reviewer Hold (${rv2})" activiti:assignee="${rv2}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
                                                    delegateExpression="${iacucListener}"/>
                         </extensionElements>
 
                     </userTask>
-                    <userTask id="rv2ReqFullReview" name="Designated Reviewer Request Full Review"
+                    <userTask id="rv2ReqFullReview" name="Designated Reviewer Request Full Review (${rv2})"
                               activiti:assignee="${rv2}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
@@ -152,14 +152,14 @@
                     </endEvent>
                     <parallelGateway id="rv3Fork"/>
                     <exclusiveGateway id="rv3Join"/>
-                    <userTask id="rv3Approval" name="Designated Reviewer Approval" activiti:assignee="${rv3}"/>
-                    <userTask id="rv3Hold" name="Designated Reviewer Hold" activiti:assignee="${rv3}">
+                    <userTask id="rv3Approval" name="Designated Reviewer Approval (${rv3})" activiti:assignee="${rv3}"/>
+                    <userTask id="rv3Hold" name="Designated Reviewer Hold (${rv3})" activiti:assignee="${rv3}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
                                                    delegateExpression="${iacucListener}"/>
                         </extensionElements>
                     </userTask>
-                    <userTask id="rv3ReqFullReview" name="Designated Reviewer Request Full Review"
+                    <userTask id="rv3ReqFullReview" name="Designated Reviewer Request Full Review (${rv3})"
                               activiti:assignee="${rv3}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
@@ -186,14 +186,14 @@
                     </endEvent>
                     <parallelGateway id="rv4Fork"/>
                     <exclusiveGateway id="rv4Join"/>
-                    <userTask id="rv4Approval" name="Designated Reviewer Approval" activiti:assignee="${rv4}"/>
-                    <userTask id="rv4Hold" name="Designated Reviewer Hold" activiti:assignee="${rv4}">
+                    <userTask id="rv4Approval" name="Designated Reviewer Approval (${rv4})" activiti:assignee="${rv4}"/>
+                    <userTask id="rv4Hold" name="Designated Reviewer Hold (${rv4})" activiti:assignee="${rv4}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
                                                    delegateExpression="${iacucListener}"/>
                         </extensionElements>
                     </userTask>
-                    <userTask id="rv4ReqFullReview" name="Designated Reviewer Request Full Review"
+                    <userTask id="rv4ReqFullReview" name="Designated Reviewer Request Full Review (${rv4})"
                               activiti:assignee="${rv4}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
@@ -221,14 +221,14 @@
                     </endEvent>
                     <parallelGateway id="rv5Fork"/>
                     <exclusiveGateway id="rv5Join"/>
-                    <userTask id="rv5Approval" name="Designated Reviewer Approval" activiti:assignee="${rv5}"/>
-                    <userTask id="rv5Hold" name="Designated Reviewer Hold" activiti:assignee="${rv5}">
+                    <userTask id="rv5Approval" name="Designated Reviewer Approval (${rv5})" activiti:assignee="${rv5}"/>
+                    <userTask id="rv5Hold" name="Designated Reviewer Hold (${rv5})" activiti:assignee="${rv5}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
                                                    delegateExpression="${iacucListener}"/>
                         </extensionElements>
                     </userTask>
-                    <userTask id="rv5ReqFullReview" name="Designated Reviewer Request Full Review"
+                    <userTask id="rv5ReqFullReview" name="Designated Reviewer Request Full Review (${rv5})"
                               activiti:assignee="${rv5}">
                         <extensionElements>
                             <activiti:taskListener event="complete"
@@ -288,7 +288,7 @@
             </userTask>
 
 
-            <transaction id="animalOrderUndoApprovalTransaction">
+            <transaction id="animalOrderOrUndoApproval">
                 <startEvent id="aouStart"/>
                 <endEvent id="aouEnd">
                     <cancelEventDefinition/>
@@ -316,10 +316,11 @@
 
                 <sequenceFlow sourceRef="aouJoin" targetRef="aouEnd"/>
             </transaction>
-            <boundaryEvent id="aouCancelled" attachedToRef="animalOrderUndoApprovalTransaction">
+            <boundaryEvent id="aouCancelled" attachedToRef="animalOrderOrUndoApproval">
                 <cancelEventDefinition/>
             </boundaryEvent>
 
+            <!--
             <boundaryEvent id="undoApprovalTimerBoundary"
                            name="Undo Approval timeout"
                            cancelActivity="true"
@@ -328,7 +329,7 @@
                     <timeDuration>PT60S</timeDuration>
                 </timerEventDefinition>
             </boundaryEvent>
-
+            -->
 
             <!-- define appendices transactions -->
             <transaction id="appendixATransaction">
@@ -660,12 +661,12 @@
                 </conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="finalApproval" targetRef="animalOrderUndoApprovalTransaction"/>
-            <sequenceFlow sourceRef="animalOrderUndoApprovalTransaction" targetRef="finalApproval">
+            <sequenceFlow sourceRef="finalApproval" targetRef="animalOrderOrUndoApproval"/>
+            <sequenceFlow sourceRef="animalOrderOrUndoApproval" targetRef="finalApproval">
                 <conditionExpression xsi:type="tFormalExpression">${undoApproval==true}
                 </conditionExpression>
             </sequenceFlow>
-            <sequenceFlow sourceRef="animalOrderUndoApprovalTransaction" targetRef="tpJoin">
+            <sequenceFlow sourceRef="animalOrderOrUndoApproval" targetRef="tpJoin">
                 <conditionExpression xsi:type="tFormalExpression">${undoApproval==false}
                 </conditionExpression>
             </sequenceFlow>
