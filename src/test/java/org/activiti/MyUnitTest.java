@@ -42,6 +42,9 @@ public class MyUnitTest {
         printOpenTaskList(bizKey);
         //
         u1Approval(bizKey, "Sam");
+
+        log.info("foo={}", getAllRvs(bizKey));
+
         /*
         u2Approval(bizKey, "Dave");
         printOpenTaskList(bizKey);
@@ -56,6 +59,16 @@ public class MyUnitTest {
 
     }
 
+
+    boolean getAllRvs(String bizKey) {
+        ProcessInstance instance=activitiRule.getRuntimeService()
+                .createProcessInstanceQuery()
+                .processInstanceBusinessKey(bizKey)
+                .includeProcessVariables()
+                .singleResult();
+        Map<String,Object>map=instance.getProcessVariables();
+        return (Boolean)map.get("allRvs");
+    }
 
     public void fooTest() {
 
@@ -572,6 +585,7 @@ public class MyUnitTest {
         Assert.assertNotNull(processInstance);
         submit(bizKey);
     }
+
     void startProtocolProcess(String bizKey, Map<String, Object> processMap) {
         Assert.assertNotNull("dude can't be null", processMap);
 
