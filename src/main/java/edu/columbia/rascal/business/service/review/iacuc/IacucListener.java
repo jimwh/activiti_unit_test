@@ -67,6 +67,9 @@ public class IacucListener implements TaskListener, ExecutionListener {
         if( IacucStatus.DistributeReviewer.isDefKey(taskDefKey)) {
             taskExecution.setVariable("hasReviewer", true);
         }
+        if( IacucStatus.Redistribute.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("redistribute", true);
+        }
 
         if (IacucStatus.ReturnToPI.isDefKey(taskDefKey)) {
             taskExecution.setVariable("undoApproval", false);

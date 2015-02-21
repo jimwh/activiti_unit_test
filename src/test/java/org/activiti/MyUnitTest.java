@@ -44,7 +44,15 @@ public class MyUnitTest {
         log.info("allRvs={}", getAllRvs(bizKey1));
         log.info("numOfRvs={}", getNumOfRvs(bizKey1));
         log.info("hasReviewerAction={}", hasReviewerAction(bizKey1));
-
+        printOpenTaskList(bizKey1);
+        //
+        IacucTaskForm taskForm=new IacucTaskForm();
+        taskForm.setBizKey(bizKey1);
+        taskForm.setAuthor("jj");
+        taskForm.setTaskDefKey(IacucStatus.Redistribute.taskDefKey());
+        taskForm.setTaskName(IacucStatus.Redistribute.statusName());
+        completeTaskByTaskForm(taskForm);
+        printOpenTaskList(bizKey1);
         /*
         returnToPI(bizKey1, "admin");
         //

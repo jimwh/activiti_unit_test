@@ -1090,6 +1090,28 @@ public enum IacucStatus {
         }
     },
     
+    Redistribute("Redistribute") {
+        @Override
+        public String taskDefKey() {
+            return "redistribute";
+        }
+
+        @Override
+        public boolean isDefKey(String def) {
+            return this.taskDefKey().equals(def);
+        }
+
+        @Override
+        public boolean isStatus(String status) {
+            return statusName().equals(status);
+        }
+
+        @Override
+        public int gatewayValue() {
+            return 999;
+        }
+    },
+
     AnimalOrder("Animal Order") {
         @Override
         public String taskDefKey() {
@@ -1111,6 +1133,7 @@ public enum IacucStatus {
             return 999;
         }
     };
+
 
 
 

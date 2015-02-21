@@ -65,8 +65,8 @@
             </boundaryEvent>
 
 
-
-
+            <transaction id="T2">
+            <!-- define reviewer sub-process -->
             <subProcess id="designatedReview" name="Designated Reviewers">
                 <startEvent id="startSubProc"/>
                 <endEvent id="endSubProc"/>
@@ -278,6 +278,31 @@
 
                 <sequenceFlow sourceRef="reviewerJoin" targetRef="endSubProc"/>
             </subProcess>
+
+                <userTask id="redistribute" name="Redistribute">
+                <extensionElements>
+                    <activiti:taskListener event="complete"
+                                           delegateExpression="${iacucListener}"/>
+                </extensionElements>
+                </userTask>
+
+                <startEvent id="t2Start" />
+                <parallelGateway id="t2Fork"/>
+                <sequenceFlow sourceRef="t2Start" targetRef="t2Fork"/>
+                <sequenceFlow sourceRef="t2Fork" targetRef="designatedReview"/>
+                <sequenceFlow sourceRef="t2Fork" targetRef="redistribute"/>
+                <exclusiveGateway id="t2Join"/>
+                <sequenceFlow sourceRef="designatedReview" targetRef="t2Join"/>
+                <sequenceFlow sourceRef="redistribute" targetRef="t2Join"/>
+                <endEvent id="t2End">
+                    <cancelEventDefinition/>
+                </endEvent>
+                <sequenceFlow sourceRef="t2Join" targetRef="t2End"/>
+            </transaction>
+            <boundaryEvent id="t2Cancelled" attachedToRef="T2">
+                <cancelEventDefinition/>
+            </boundaryEvent>
+            <!-- end of designated reviewer subProcess -->
 
 
 
@@ -622,14 +647,15 @@
                 <conditionExpression xsi:type="tFormalExpression"><![CDATA[${T1_OUT == 1}]]></conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="t1out" targetRef="designatedReview">
+            <sequenceFlow sourceRef="t1out" targetRef="T2">
                 <conditionExpression xsi:type="tFormalExpression"><![CDATA[${T1_OUT == 2}]]></conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="designatedReview" targetRef="fooJoin">
+            <sequenceFlow sourceRef="T2" targetRef="fooJoin">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==true}
                 </conditionExpression>
             </sequenceFlow>
+
 
             <inclusiveGateway id="fooJoin"/>
 
@@ -645,9 +671,14 @@
                 </conditionExpression>
             </sequenceFlow>
 
+            <sequenceFlow sourceRef="fooJoin" targetRef="fooFork">
+                <conditionExpression xsi:type="tFormalExpression">${redistribute==true}
+                </conditionExpression>
+            </sequenceFlow>
+
             <manualTask id="stop" name="it is a stop point for return-2-pi"/>
             <!-- can't directly go return-2-pi, otherwise 2 return2Pi tasks will be created -->
-            <sequenceFlow sourceRef="designatedReview" targetRef="stop">
+            <sequenceFlow sourceRef="T2" targetRef="stop">
                 <conditionExpression xsi:type="tFormalExpression">${allRvs==false}
                 </conditionExpression>
             </sequenceFlow>
