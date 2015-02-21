@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 
 public class MyUnitTest {
 
-    static final Logger log = LoggerFactory.getLogger(MyUnitTest.class);
-    static final String ProcessDefKey = "IacucApprovalProcess";
-    static final String START_GATEWAY = "START_GATEWAY";
+    private static final Logger log = LoggerFactory.getLogger(MyUnitTest.class);
+    private static final String ProcessDefKey = "IacucApprovalProcess";
+    private static final String START_GATEWAY = "START_GATEWAY";
 
     @Rule
     public ActivitiRule activitiRule = new ActivitiRule();
@@ -33,29 +33,56 @@ public class MyUnitTest {
     @Test
     @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
     public void test() {
-        String bizKey="foo";
-        startProtocolProcess(bizKey);
+
+        String bizKey1="foo";
+        String userId="bob";
+        startProtocolProcess(bizKey1, userId);
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
-        rvList.add("Dave");
-        distributeToDesignatedReviewer(bizKey, "admin", rvList);
-        printOpenTaskList(bizKey);
-        //
-        u1Approval(bizKey, "Sam");
+        distributeToDesignatedReviewer(bizKey1, "admin", rvList);
+        // u1Approval(bizKey1, "Sam");
+        log.info("allRvs={}", getAllRvs(bizKey1));
+        log.info("numOfRvs={}", getNumOfRvs(bizKey1));
+        log.info("hasReviewerAction={}", hasReviewerAction(bizKey1));
 
-        log.info("foo={}", getAllRvs(bizKey));
+        /*
+        returnToPI(bizKey1, "admin");
+        //
+        String bizKey2="foo1";
+        String userId1="Tom";
+        startProtocolProcess(bizKey2, userId1);
+        rvList = new ArrayList<String>();
+        rvList.add("Sam");
+        distributeToDesignatedReviewer(bizKey2, "admin", rvList);
+        u1Approval(bizKey2, "Sam");
+        log.info("foo={}", getAllRvs(bizKey2));
+        returnToPI(bizKey2, "admin");
+
+        HistoricProcessInstance hp1=activitiRule.getHistoryService()
+                .createHistoricProcessInstanceQuery()
+                .processInstanceBusinessKey(bizKey1)
+                .finished()
+                .singleResult();
+        log.info("startUser1={}", hp1.getStartUserId());
+
+        HistoricProcessInstance hp2=activitiRule.getHistoryService()
+                .createHistoricProcessInstanceQuery()
+                .processInstanceBusinessKey(bizKey2)
+                .finished()
+                .singleResult();
+        log.info("startUser2={}", hp2.getStartUserId());
+        */
 
         /*
         u2Approval(bizKey, "Dave");
         printOpenTaskList(bizKey);
         finalApproval(bizKey, "admin");
         printOpenTaskList(bizKey);
-        // returnToPI(bizKey, "admin");
         // undoApproval(bizKey, "admin");
         animalOrder(bizKey, "admin");
         */
-        printOpenTaskList(bizKey);
-        printHistory(bizKey);
+        //printOpenTaskList(bizKey);
+        //printHistory(bizKey);
 
     }
 
@@ -68,6 +95,27 @@ public class MyUnitTest {
                 .singleResult();
         Map<String,Object>map=instance.getProcessVariables();
         return (Boolean)map.get("allRvs");
+    }
+
+    int getNumOfRvs(String bizKey) {
+        ProcessInstance instance=activitiRule.getRuntimeService()
+                .createProcessInstanceQuery()
+                .processInstanceBusinessKey(bizKey)
+                .includeProcessVariables()
+                .singleResult();
+        Map<String,Object>map=instance.getProcessVariables();
+        return (Integer)map.get("numOfRvs");
+    }
+
+    boolean hasReviewerAction(String bizKey) {
+        String processInstanceId=getCurrentProcessInstanceId(bizKey);
+        HistoricTaskInstanceQuery query=
+        activitiRule.getHistoryService().createHistoricTaskInstanceQuery()
+                .finished()
+                .processInstanceBusinessKey(bizKey)
+                .processInstanceId(processInstanceId)
+                .taskDefinitionKeyLike("rv%");
+        return query!=null && !query.list().isEmpty() && query.list().isEmpty();
     }
 
     public void fooTest() {
@@ -132,7 +180,7 @@ public class MyUnitTest {
 
     public void noAppendix() {
         String bizKey="foo";
-        startProtocolProcess(bizKey);
+        startProtocolProcess(bizKey, "foo");
 
         distToSubcommittee(bizKey, "admin");
         //approveAppendixA(bizKey, "safetyOfficeDam");
@@ -146,7 +194,7 @@ public class MyUnitTest {
     public void foo() {
 
         String[] bizKeys ={"1", "2", "3", "4", "5"};
-        for(int i=0; i<bizKeys.length; i++) {
+        for(String bk: bizKeys) {
             // for appendix if any
             Map<String, Object> processMap = new HashMap<String, Object>();
             processMap.put("hasAppendix", false);
@@ -158,10 +206,10 @@ public class MyUnitTest {
             processMap.put("hasAppendixF", false);
             processMap.put("hasAppendixG", false);
             processMap.put("hasAppendixI", false);
-            startProtocolProcess(bizKeys[i], processMap);
+            startProtocolProcess(bk, processMap);
 
 
-            distToSubcommittee(bizKeys[i], "admin");
+            distToSubcommittee(bk, "admin");
             //approveAppendixA(bizKey, "safetyOfficeDam");
             //holdAppendixB(bizKey, "safetyOfficeHolder");
             // subcommitteeReview(bizKey, "admin");
@@ -210,17 +258,6 @@ public class MyUnitTest {
         // completed return-2-pi, there is no task and no instance
         // Assert.assertEquals(0, taskCount(bizKey));
         // Assert.assertNull(getProtocolProcessInstance(bizKey));
-    }
-
-    void undoReturnToPI(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("undo return to PI back man1...");
-        iacucTaskForm.setTaskName(IacucStatus.UndoReturnToPI.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.UndoReturnToPI.taskDefKey());
-        //
-        completeTaskByTaskForm(iacucTaskForm);
     }
 
     void distToSubcommittee(String bizKey, String user) {
@@ -488,6 +525,7 @@ public class MyUnitTest {
             // iacucTaskForm.setTaskName(hs.getName());
             //
             Map<String, Object> localMap = hs.getTaskLocalVariables();
+            //noinspection unchecked
             Map<String, String> taskMap = (Map<String, String>) localMap.get("iacucTaskForm" + hs.getId());
 
             // restore the original attribute
@@ -504,6 +542,7 @@ public class MyUnitTest {
             // if the snapshot id is pre-stored in properties, then do nothing
 
             // restore the original correspondence if any
+            //noinspection unchecked
             Map<String, String> corrMap = (Map<String, String>) localMap.get("IacucCorrespondence" + hs.getId());
             if (corrMap != null && !corrMap.isEmpty()) {
                 IacucCorrespondence corr = new IacucCorrespondence();
@@ -574,7 +613,8 @@ public class MyUnitTest {
     }
 
     // protocol approval process
-    void startProtocolProcess(String bizKey) {
+    void startProtocolProcess(String bizKey, String userId) {
+        activitiRule.getIdentityService().setAuthenticatedUserId(userId);
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
         Assert.assertNull("dude i am expecting null", instance);
         Map<String, Object>processMap=new HashMap<String, Object>();
@@ -691,6 +731,7 @@ public class MyUnitTest {
             iacucTaskForm.setTaskName(hs.getName());
             //
             Map<String, Object> localMap = hs.getTaskLocalVariables();
+            //noinspection unchecked
             Map<String, String> taskMap = (Map<String, String>) localMap.get("iacucTaskForm" + hs.getId());
 
             // restore the original attribute

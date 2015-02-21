@@ -64,9 +64,8 @@
                 <cancelEventDefinition/>
             </boundaryEvent>
 
-            <!--
-            <userTask id="subcommittee" name="Subcommittee"/>
-            -->
+
+
 
             <subProcess id="designatedReview" name="Designated Reviewers">
                 <startEvent id="startSubProc"/>
@@ -280,6 +279,8 @@
                 <sequenceFlow sourceRef="reviewerJoin" targetRef="endSubProc"/>
             </subProcess>
 
+
+
             <userTask id="finalApproval" name="Approve">
                 <extensionElements>
                     <activiti:taskListener event="complete"
@@ -320,16 +321,6 @@
                 <cancelEventDefinition/>
             </boundaryEvent>
 
-            <!--
-            <boundaryEvent id="undoApprovalTimerBoundary"
-                           name="Undo Approval timeout"
-                           cancelActivity="true"
-                           attachedToRef="undoApproval">
-                <timerEventDefinition>
-                    <timeDuration>PT60S</timeDuration>
-                </timerEventDefinition>
-            </boundaryEvent>
-            -->
 
             <!-- define appendices transactions -->
             <transaction id="appendixATransaction">

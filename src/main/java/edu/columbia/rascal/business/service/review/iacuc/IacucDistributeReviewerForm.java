@@ -16,6 +16,8 @@ public class IacucDistributeReviewerForm extends IacucTaskForm {
 
         Map<String,Object> map=new HashMap<String, Object>();
         map.put("T1_OUT", IacucStatus.DistributeReviewer.gatewayValue());
+        map.put("numOfRvs", reviewerList.size());
+        //
         for(int suffix=1; suffix<6; suffix++) {
             map.put("rv"+suffix, null);
         }
