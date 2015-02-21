@@ -152,7 +152,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
 
     private void updateAppendixApproveStatus(DelegateTask delegateTask) {
-
+        log.info("udateAppendixApproveStatus...");
         if (!(Boolean) delegateTask.getVariable(appendixAApproved)) {
             return;
         }
@@ -225,6 +225,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
             exe.setVariable(appendixAApproved, true);
         }
         else if ((Boolean) exe.getVariable(hasAppendixA)) {
+            log.info("--------------------hasAppendixA={}", exe.getVariable(hasAppendixA));
             exe.setVariable(appendixAApproved, false);
             bool = false;
         } else {
@@ -233,7 +234,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
         if(exe.getVariable(hasAppendixB)==null) {
             exe.setVariable(hasAppendixB, false);
-            exe.setVariable(appendixAApproved, true);
+            exe.setVariable(appendixBApproved, true);
         }
         else if ((Boolean) exe.getVariable(hasAppendixB)) {
             exe.setVariable(appendixBApproved, false);

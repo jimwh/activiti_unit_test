@@ -634,8 +634,10 @@
             <sequenceFlow sourceRef="tpFork" targetRef="fooFork"/>
 
             <inclusiveGateway id="fooFork"/>
-            <sequenceFlow sourceRef="fooFork" targetRef="T1"/>
-            <sequenceFlow sourceRef="fooFork" targetRef="appendixFork">
+            <sequenceFlow sourceRef="fooFork" targetRef="man"/>
+            <manualTask id="man" />
+            <sequenceFlow sourceRef="man" targetRef="T1"/>
+            <sequenceFlow sourceRef="fooFork" targetRef="appendixFork" >
                 <conditionExpression xsi:type="tFormalExpression">${hasAppendix == true}</conditionExpression>
             </sequenceFlow>
 
@@ -671,7 +673,7 @@
                 </conditionExpression>
             </sequenceFlow>
 
-            <sequenceFlow sourceRef="fooJoin" targetRef="fooFork">
+            <sequenceFlow sourceRef="fooJoin" targetRef="man">
                 <conditionExpression xsi:type="tFormalExpression">${redistribute==true}
                 </conditionExpression>
             </sequenceFlow>

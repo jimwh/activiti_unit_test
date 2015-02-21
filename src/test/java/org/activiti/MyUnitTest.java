@@ -33,19 +33,35 @@ public class MyUnitTest {
     @Test
     @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
     public void test() {
-
+        testRedistribute();
+    }
+    public void testRedistribute() {
         String bizKey1="foo";
         String userId="bob";
-        startProtocolProcess(bizKey1, userId);
+        Map<String, Object>processInput=new HashMap<String, Object>();
+        processInput.put("hasAppendixA", true);
+        processInput.put("hasAppendix", true);
+        startProtocolProcess(bizKey1, userId, processInput);
+        printOpenTaskList(bizKey1);
+        //
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         distributeToDesignatedReviewer(bizKey1, "admin", rvList);
-        // u1Approval(bizKey1, "Sam");
         log.info("allRvs={}", getAllRvs(bizKey1));
         log.info("numOfRvs={}", getNumOfRvs(bizKey1));
         log.info("hasReviewerAction={}", hasReviewerAction(bizKey1));
         printOpenTaskList(bizKey1);
-        //
+
+        /*
+        IacucTaskForm taskForm=new IacucTaskForm();
+        taskForm.setBizKey(bizKey1);
+        taskForm.setAuthor("jj");
+        taskForm.setTaskDefKey(IacucStatus.SOPreApproveA.taskDefKey());
+        taskForm.setTaskName(IacucStatus.SOPreApproveA.statusName());
+        completeTaskByTaskForm(taskForm);
+        printOpenTaskList(bizKey1);
+        */
+
         IacucTaskForm taskForm=new IacucTaskForm();
         taskForm.setBizKey(bizKey1);
         taskForm.setAuthor("jj");
@@ -53,6 +69,7 @@ public class MyUnitTest {
         taskForm.setTaskName(IacucStatus.Redistribute.statusName());
         completeTaskByTaskForm(taskForm);
         printOpenTaskList(bizKey1);
+
         /*
         returnToPI(bizKey1, "admin");
         //
@@ -129,11 +146,12 @@ public class MyUnitTest {
     public void fooTest() {
 
         String bizKey="foo";
+        String userId="bob";
         Map<String,Object>hasAppendix=new HashMap<String, Object>();
         hasAppendix.put("hasAppendixA", true);
         hasAppendix.put("hasAppendixB", true);
 
-        startProtocolProcess(bizKey, hasAppendix);
+        startProtocolProcess(bizKey, userId, hasAppendix);
 
         // distribute it to reviewers
         List<String> rvList = new ArrayList<String>();
@@ -171,9 +189,10 @@ public class MyUnitTest {
 
     public void dist2SubcommitteeWithAppendix() {
         String bizKey="foo";
+        String userId="bob";
         Map<String,Object>hasAppendix=new HashMap<String, Object>();
         hasAppendix.put("hasAppendixA", true);
-        startProtocolProcess(bizKey, hasAppendix);
+        startProtocolProcess(bizKey, userId, hasAppendix);
         distToSubcommittee(bizKey, "admin");
         log.info("after distribute subcommittee open tasks:");
         printOpenTaskList(bizKey);
@@ -214,7 +233,7 @@ public class MyUnitTest {
             processMap.put("hasAppendixF", false);
             processMap.put("hasAppendixG", false);
             processMap.put("hasAppendixI", false);
-            startProtocolProcess(bk, processMap);
+            startProtocolProcess(bk, "bob", processMap);
 
 
             distToSubcommittee(bk, "admin");
@@ -620,12 +639,12 @@ public class MyUnitTest {
         processMap.put(START_GATEWAY, IacucStatus.Submit.gatewayValue());
         // for call activity
         processMap.put("BusinessKey", bizKey);
-        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.Submit.name());
+        ProcessInstance processInstance = starProcess(bizKey,userId, processMap, IacucStatus.Submit.name());
         Assert.assertNotNull(processInstance);
         submit(bizKey);
     }
 
-    void startProtocolProcess(String bizKey, Map<String, Object> processMap) {
+    void startProtocolProcess(String bizKey, String userId, Map<String, Object> processMap) {
         Assert.assertNotNull("dude can't be null", processMap);
 
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
@@ -634,7 +653,7 @@ public class MyUnitTest {
         processMap.put(START_GATEWAY, IacucStatus.Submit.gatewayValue());
         // for call activity
         processMap.put("BusinessKey", bizKey);
-        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.Submit.name());
+        ProcessInstance processInstance = starProcess(bizKey,userId, processMap, IacucStatus.Submit.name());
         Assert.assertNotNull(processInstance);
         submit(bizKey);
     }
@@ -644,12 +663,12 @@ public class MyUnitTest {
     }
 
     // add correspondence process
-    void startCorrProcess(String bizKey) {
+    void startCorrProcess(String bizKey, String userId) {
         ProcessInstance instance = getCorrProcessInstance(bizKey);
         Assert.assertNull("dude", instance);
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(START_GATEWAY, IacucStatus.AddCorrespondence.gatewayValue());
-        starProcess(bizKey, map, IacucStatus.AddCorrespondence.name());
+        starProcess(bizKey, userId, map, IacucStatus.AddCorrespondence.name());
     }
 
     ProcessInstance getCorrProcessInstance(String bizKey) {
@@ -657,12 +676,12 @@ public class MyUnitTest {
     }
 
     // add note process
-    void startAddNoteProcess(String bizKey) {
+    void startAddNoteProcess(String bizKey, String userId) {
         ProcessInstance instance = getNoteProcessInstance(bizKey);
         Assert.assertNull("dude", instance);
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(START_GATEWAY, IacucStatus.AddNote.gatewayValue());
-        starProcess(bizKey, map, IacucStatus.AddNote.name());
+        starProcess(bizKey, userId, map, IacucStatus.AddNote.name());
     }
 
     ProcessInstance getNoteProcessInstance(String bizKey) {
@@ -680,16 +699,17 @@ public class MyUnitTest {
     }
 
     // terminal protocol
-    void startTerminateProtocolProcess(String bizKey) {
+    void startTerminateProtocolProcess(String bizKey, String userId) {
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
         Assert.assertNull("dude ", instance);
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(START_GATEWAY, IacucStatus.Terminate.gatewayValue());
-        starProcess(bizKey, map, IacucStatus.Terminate.name());
+        starProcess(bizKey, userId,map, IacucStatus.Terminate.name());
     }
 
-    ProcessInstance starProcess(String bizKey, Map<String, Object> map, String instanceName) {
+    ProcessInstance starProcess(String bizKey, String userId, Map<String, Object> map, String instanceName) {
         RuntimeService runtimeService = activitiRule.getRuntimeService();
+        activitiRule.getIdentityService().setAuthenticatedUserId(userId);
         ProcessInstance instance = runtimeService.startProcessInstanceByKey(ProcessDefKey, bizKey, map);
         runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), instanceName);
         return instance;
