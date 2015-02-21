@@ -43,4 +43,7 @@ public class IacucProtocolHeaderService {
         processService.completeTaskByTaskForm(IacucProcessService.ProtocolProcessDefKey,taskForm);
     }
 
+    public boolean canRedistribute(String bizKey) {
+        return processService.canRedistribute(bizKey);
+    }
 }

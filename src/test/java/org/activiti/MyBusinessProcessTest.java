@@ -5,7 +5,6 @@ import java.util.*;
 import edu.columbia.rascal.business.service.review.iacuc.*;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.task.Task;
-import org.activiti.engine.test.Deployment;
 
 import org.junit.Test;
 
@@ -30,9 +29,8 @@ public class MyBusinessProcessTest {
     private IacucProtocolHeaderService headerService;
 
     @Test
-    @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
+    // @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
     public void test() {
-
         testRedistribute();
     }
 
@@ -50,18 +48,21 @@ public class MyBusinessProcessTest {
         //log.info("allRvs={}", getAllRvs(bizKey1));
         //log.info("numOfRvs={}", getNumOfRvs(bizKey1));
         //log.info("hasReviewerAction={}", hasReviewerAction(bizKey1));
+        //printOpenTaskList(bizKey1);
+        //
+        safetyOfficerAction(bizKey1,userId,IacucStatus.SOPreApproveA.taskDefKey(),IacucStatus.SOPreApproveA.statusName(),"foo");
         printOpenTaskList(bizKey1);
         //
+        // log.info("canRedistribute={}", headerService.canRedistribute(bizKey1));
+
+/*
+        reviewerAction(bizKey1,userId,
+                IacucStatus.Rv1Approval.taskDefKey(),IacucStatus.Rv1Approval.statusName(),
+                "foo bar");
+*/
+
+        log.info("canRedistribute={}", headerService.canRedistribute(bizKey1));
         IacucTaskForm taskForm=new IacucTaskForm();
-        taskForm.setBizKey(bizKey1);
-        taskForm.setAuthor("jj");
-        taskForm.setTaskDefKey(IacucStatus.SOPreApproveA.taskDefKey());
-        taskForm.setTaskName(IacucStatus.SOPreApproveA.statusName());
-        headerService.completeTaskByTaskForm(taskForm);
-        printOpenTaskList(bizKey1);
-
-
-        taskForm=new IacucTaskForm();
         taskForm.setBizKey(bizKey1);
         taskForm.setAuthor("jj");
         taskForm.setTaskDefKey(IacucStatus.Redistribute.taskDefKey());
@@ -317,58 +318,17 @@ public class MyBusinessProcessTest {
         //completeTaskByTaskForm(iacucTaskForm);
     }
 
-    void holdAppendixB(String bizKey, String user) {
+
+    void reviewerAction(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
         IacucTaskForm iacucTaskForm = new IacucTaskForm();
         iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("reviewed but hold appendix-B...");
-        iacucTaskForm.setTaskName(IacucStatus.SOHoldB.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.SOHoldB.taskDefKey());
-        //completeTaskByTaskForm(iacucTaskForm);
+        iacucTaskForm.setAuthor(userId);
+        iacucTaskForm.setComment(comment);
+        iacucTaskForm.setTaskName(taskName);
+        iacucTaskForm.setTaskDefKey(taskDefKey);
+        headerService.completeTaskByTaskForm(iacucTaskForm);
     }
 
-
-    void u1Approval(String bizKey, String u1) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(u1);
-        iacucTaskForm.setComment("approval is given");
-        iacucTaskForm.setTaskName(IacucStatus.Rv1Approval.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.Rv1Approval.taskDefKey());
-        //Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv1Approval.taskDefKey(), iacucTaskForm.getAuthor()));
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
-    void u2Approval(String bizKey, String u1) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(u1);
-        iacucTaskForm.setComment("approval is given");
-        iacucTaskForm.setTaskName(IacucStatus.Rv2Approval.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.Rv2Approval.taskDefKey());
-        //Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Approval.taskDefKey(), iacucTaskForm.getAuthor()));
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
-    /*
-    void u2Hold(String bizKey, String u) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(u);
-        iacucTaskForm.setComment("u2 is hold");
-        iacucTaskForm.setTaskName(IacucStatus.Rv2Hold.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.Rv2Hold.taskDefKey());
-        log.info("u2...................{}", iacucTaskForm.getAuthor());
-        printOpenTaskList(bizKey);
-        Task task = getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor());
-        if (task == null)
-            log.error("task is null");
-
-        Assert.assertNotNull(getAssigneeTaskByTaskDefKey(bizKey, IacucStatus.Rv2Hold.taskDefKey(), iacucTaskForm.getAuthor()));
-
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-    */
 
     void finalApproval(String bizKey, String user) {
         IacucTaskForm iacucTaskForm = new IacucTaskForm();
@@ -449,5 +409,14 @@ public class MyBusinessProcessTest {
         log.info("...............................................................\n");
     }
 */
+    void safetyOfficerAction(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
+        IacucTaskForm taskForm = new IacucTaskForm();
+        taskForm.setBizKey(bizKey);
+        taskForm.setAuthor(userId);
+        taskForm.setTaskDefKey(taskDefKey);
+        taskForm.setTaskName(taskName);
+        taskForm.setComment(comment);
+        headerService.completeTaskByTaskForm(taskForm);
+    }
 
 }

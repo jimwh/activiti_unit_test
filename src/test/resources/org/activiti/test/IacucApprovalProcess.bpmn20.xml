@@ -48,7 +48,12 @@
 
                 </userTask>
                 <userTask id="distributeToDS" name="Distribute: Designated Reviewers"
-                          activiti:candidateGroups="IACUC_CAN_DISTRIBUTE_DESIGNATED_REVIEWERS"/>
+                          activiti:candidateGroups="IACUC_CAN_DISTRIBUTE_DESIGNATED_REVIEWERS">
+                    <extensionElements>
+                        <activiti:taskListener event="complete"
+                                               delegateExpression="${iacucListener}"/>
+                    </extensionElements>
+                </userTask>
                 <exclusiveGateway id="t1Join"/>
                 <endEvent id="t1End">
                     <cancelEventDefinition id="e1"/>
@@ -664,7 +669,8 @@
             <sequenceFlow sourceRef="appendixJoin" targetRef="stop"/>
 
             <sequenceFlow sourceRef="fooJoin" targetRef="finalApproval">
-                <conditionExpression xsi:type="tFormalExpression">${allRvs==true and allAppendicesApproved==true}
+                <conditionExpression xsi:type="tFormalExpression">
+                    ${allRvs==true and allAppendicesApproved==true and redistribute==false}
                 </conditionExpression>
             </sequenceFlow>
 
@@ -681,7 +687,7 @@
             <manualTask id="stop" name="it is a stop point for return-2-pi"/>
             <!-- can't directly go return-2-pi, otherwise 2 return2Pi tasks will be created -->
             <sequenceFlow sourceRef="T2" targetRef="stop">
-                <conditionExpression xsi:type="tFormalExpression">${allRvs==false}
+                <conditionExpression xsi:type="tFormalExpression">${allRvs==false and redistribute==false}
                 </conditionExpression>
             </sequenceFlow>
 

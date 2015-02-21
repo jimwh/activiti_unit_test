@@ -40,7 +40,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
      * @param delegateTask
      */
     @Override
-    public void notify(DelegateTask delegateTask) {
+    public void notify(DelegateTask delegateTask)  {
 
         DelegateExecution taskExecution = delegateTask.getExecution();
         String bizKey = taskExecution.getProcessBusinessKey();
@@ -66,8 +66,16 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
         if( IacucStatus.DistributeReviewer.isDefKey(taskDefKey)) {
             taskExecution.setVariable("hasReviewer", true);
+            taskExecution.setVariable("canRedistribute", true);
         }
+
         if( IacucStatus.Redistribute.isDefKey(taskDefKey)) {
+            log.info("canRedistribute:{}", taskExecution.getVariable("canRedistribute"));
+
+            if( !(Boolean)taskExecution.getVariable("canRedistribute") ) {
+                throw new IllegalStateException("cannot redistribute because ...");
+            }
+
             taskExecution.setVariable("redistribute", true);
         }
 
@@ -81,28 +89,63 @@ public class IacucListener implements TaskListener, ExecutionListener {
             taskExecution.setVariable("undoApproval", false);
         }
 
+        // TODO: AllRvs <-- true at the begin vs fooJoin ???
 
         // for designated reviewers
         if (IacucStatus.Rv1Hold.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv1ReqFullReview.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv2Hold.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv2ReqFullReview.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv3Hold.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv3ReqFullReview.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv4Hold.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv4ReqFullReview.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv5Hold.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
         } else if (IacucStatus.Rv5ReqFullReview.isDefKey(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
+            taskExecution.setVariable("canRedistribute", false);
+        }
+        else if(IacucStatus.Rv1Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("canRedistribute", false);
+
+        }
+        else if(IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("canRedistribute", false);
+
+        }
+        else if(IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("canRedistribute", false);
+
+        }
+        else if(IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("canRedistribute", false);
+
+        }
+        else if(IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("canRedistribute", false);
+
+        }
+        else if(IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("canRedistribute", false);
+
         }
 
         // for appendices
@@ -200,7 +243,7 @@ public class IacucListener implements TaskListener, ExecutionListener {
             log.info("main process: eventName={}, bizKey={}, procDefId={}", eventName, thisEntity.getBusinessKey(), thisEntity.getProcessDefinitionId());
             // used by designatedReviews output
             thisEntity.setVariable(AllRvs, true);
-
+            thisEntity.setVariable("redistribute", false);
         } else {
             // in a sub-process so get the BusinessKey variable set by the caller.
             String key = (String) superExecEntity.getVariable("BusinessKey");

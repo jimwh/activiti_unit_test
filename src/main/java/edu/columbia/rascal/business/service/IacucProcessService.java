@@ -772,6 +772,10 @@ class IacucProcessService {
         return retList;
     }
 
+    boolean canRedistribute(String bizKey) {
+        return !hasReviewerAction(bizKey);
+    }
+
     boolean hasReviewerAction(String bizKey) {
         String processInstanceId = getCurrentProtocolProcessInstanceId(bizKey);
         HistoricTaskInstanceQuery query = historyService
