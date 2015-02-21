@@ -232,8 +232,8 @@ public class MyUnitTest {
         IacucTaskForm iacucTaskForm = new IacucTaskForm();
         iacucTaskForm.setBizKey(bizKey);
         iacucTaskForm.setAuthor("bob");
-        iacucTaskForm.setTaskName(IacucStatus.SUBMIT.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.SUBMIT.taskDefKey());
+        iacucTaskForm.setTaskName(IacucStatus.Submit.statusName());
+        iacucTaskForm.setTaskDefKey(IacucStatus.Submit.taskDefKey());
         completeTaskByTaskForm(iacucTaskForm);
     }
 
@@ -242,8 +242,8 @@ public class MyUnitTest {
         iacucTaskForm.setBizKey(bizKey);
         iacucTaskForm.setAuthor(user);
         iacucTaskForm.setComment("no choice but back to PI...");
-        iacucTaskForm.setTaskName(IacucStatus.RETURNTOPI.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.RETURNTOPI.taskDefKey());
+        iacucTaskForm.setTaskName(IacucStatus.ReturnToPI.statusName());
+        iacucTaskForm.setTaskDefKey(IacucStatus.ReturnToPI.taskDefKey());
         //
         IacucCorrespondence corr1 = new IacucCorrespondence();
         corr1.setFrom(user);
@@ -271,15 +271,6 @@ public class MyUnitTest {
         completeTaskByTaskForm(iacucTaskForm);
     }
 
-    void subcommitteeReview(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("subcommittee review");
-        iacucTaskForm.setTaskName(IacucStatus.SubcommitteeReview.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.SubcommitteeReview.taskDefKey());
-        completeTaskByTaskForm(iacucTaskForm);
-    }
 
     void distributeToDesignatedReviewer(String bizKey, String user, List<String> reviewerList) {
         IacucDistributeReviewerForm iacucTaskForm = new IacucDistributeReviewerForm();
@@ -387,8 +378,8 @@ public class MyUnitTest {
         iacucTaskForm.setBizKey(bizKey);
         iacucTaskForm.setAuthor(user);
         iacucTaskForm.setComment("final approval");
-        iacucTaskForm.setTaskName(IacucStatus.FINALAPPROVAL.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.FINALAPPROVAL.taskDefKey());
+        iacucTaskForm.setTaskName(IacucStatus.FinalApproval.statusName());
+        iacucTaskForm.setTaskDefKey(IacucStatus.FinalApproval.taskDefKey());
         //
         IacucCorrespondence corr = new IacucCorrespondence();
         corr.setFrom(user);
@@ -618,10 +609,10 @@ public class MyUnitTest {
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
         Assert.assertNull("dude i am expecting null", instance);
         Map<String, Object>processMap=new HashMap<String, Object>();
-        processMap.put(START_GATEWAY, IacucStatus.SUBMIT.gatewayValue());
+        processMap.put(START_GATEWAY, IacucStatus.Submit.gatewayValue());
         // for call activity
         processMap.put("BusinessKey", bizKey);
-        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.SUBMIT.name());
+        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.Submit.name());
         Assert.assertNotNull(processInstance);
         submit(bizKey);
     }
@@ -632,16 +623,16 @@ public class MyUnitTest {
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
         Assert.assertNull("dude i am expecting null", instance);
 
-        processMap.put(START_GATEWAY, IacucStatus.SUBMIT.gatewayValue());
+        processMap.put(START_GATEWAY, IacucStatus.Submit.gatewayValue());
         // for call activity
         processMap.put("BusinessKey", bizKey);
-        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.SUBMIT.name());
+        ProcessInstance processInstance = starProcess(bizKey, processMap, IacucStatus.Submit.name());
         Assert.assertNotNull(processInstance);
         submit(bizKey);
     }
 
     ProcessInstance getProtocolProcessInstance(String bizKey) {
-        return getProcessInstanceByName(bizKey, IacucStatus.SUBMIT.name());
+        return getProcessInstanceByName(bizKey, IacucStatus.Submit.name());
     }
 
     // add correspondence process
@@ -685,8 +676,8 @@ public class MyUnitTest {
         ProcessInstance instance = getProtocolProcessInstance(bizKey);
         Assert.assertNull("dude ", instance);
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(START_GATEWAY, IacucStatus.TERMINATE.gatewayValue());
-        starProcess(bizKey, map, IacucStatus.TERMINATE.name());
+        map.put(START_GATEWAY, IacucStatus.Terminate.gatewayValue());
+        starProcess(bizKey, map, IacucStatus.Terminate.name());
     }
 
     ProcessInstance starProcess(String bizKey, Map<String, Object> map, String instanceName) {
@@ -762,7 +753,7 @@ public class MyUnitTest {
         List<ProcessInstance> list=activitiRule.getRuntimeService()
                 .createProcessInstanceQuery()
                 .processDefinitionKey(ProcessDefKey)
-                .processInstanceName(IacucStatus.SUBMIT.name())
+                .processInstanceName(IacucStatus.Submit.name())
                 .includeProcessVariables()
                 .list();
         for (ProcessInstance instance:list) {

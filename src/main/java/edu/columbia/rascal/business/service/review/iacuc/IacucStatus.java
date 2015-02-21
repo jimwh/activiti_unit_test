@@ -5,7 +5,7 @@ import java.util.Set;
 
 public enum IacucStatus {
 
-    SUBMIT("Submit") {
+    Submit("Submit") {
         @Override
         public String taskDefKey() {
             return "submit";
@@ -27,73 +27,8 @@ public enum IacucStatus {
         }
     },
 
-    DISTRIBUTE("Distribute") {
-        @Override
-        public String taskDefKey() {
-            return "distribution";
-        }
 
-        @Override
-        public boolean isDefKey(String def) {
-            return this.taskDefKey().equals(def);
-        }
-
-        @Override
-        public boolean isStatus(String status) {
-            return statusName().equalsIgnoreCase(status);
-        }
-
-        @Override
-        public int gatewayValue() {
-            return 11;
-        }
-    },
-
-    SubcommitteeReview("Subcommittee") {
-        @Override
-        public String taskDefKey() {
-            return "subcommittee";
-        }
-
-        @Override
-        public boolean isDefKey(String def) {
-            return this.taskDefKey().equals(def);
-        }
-
-        @Override
-        public boolean isStatus(String status) {
-            return statusName().equalsIgnoreCase(status);
-        }
-
-        @Override
-        public int gatewayValue() {
-            return 1;
-        }
-    },
-
-    ASSIGNEEREVIEW("Designated Reviewer") {
-        @Override
-        public String taskDefKey() {
-            return "assigneeReview";
-        }
-
-        @Override
-        public boolean isDefKey(String def) {
-            return this.taskDefKey().equals(def);
-        }
-
-        @Override
-        public boolean isStatus(String status) {
-            return statusName().equalsIgnoreCase(status);
-        }
-
-        @Override
-        public int gatewayValue() {
-            return 33;
-        }
-    },
-
-    RETURNTOPI("Return to PI") {
+    ReturnToPI("Return to PI") {
         @Override
         public String taskDefKey() {
             return "returnToPI";
@@ -115,7 +50,7 @@ public enum IacucStatus {
         }
     },
 
-    FINALAPPROVAL("Approve") {
+    FinalApproval("Approve") {
         @Override
         public String taskDefKey() {
             return "finalApproval";
@@ -138,7 +73,7 @@ public enum IacucStatus {
     },
 
 
-    ADVERSEEVENT("AdverseEvent") {
+    AdverseEvent("AdverseEvent") {
         @Override
         public String taskDefKey() {
             return "adverseEvent";
@@ -160,7 +95,7 @@ public enum IacucStatus {
         }
     },
 
-    TERMINATE("Terminate") {
+    Terminate("Terminate") {
         @Override
         public String taskDefKey() {
             return "terminateProtocol";
@@ -182,7 +117,7 @@ public enum IacucStatus {
         }
     },
 
-    SUSPEND("Suspend") {
+    Suspend("Suspend") {
         @Override
         public String taskDefKey() {
             return "suspendProtocol";
@@ -204,7 +139,7 @@ public enum IacucStatus {
         }
     },
 
-    WITHDRAW("Withdraw") {
+    Withdraw("Withdraw") {
         @Override
         public String taskDefKey() {
             return "withdrawal";
@@ -248,7 +183,7 @@ public enum IacucStatus {
         }
     },
 
-    REINSTATE("Reinstate") {
+    Reinstate("Reinstate") {
         @Override
         public String taskDefKey() {
             return "reinstatement";
@@ -270,7 +205,7 @@ public enum IacucStatus {
         }
     },
 
-    KAPUT("Kaput") {
+    Kaput("Kaput") {
         @Override
         public String taskDefKey() {
             return "kaput";
@@ -1154,8 +1089,8 @@ public enum IacucStatus {
             return 10;
         }
     },
-
-    AnimalOrder("Animal Order A-Tone") {
+    
+    AnimalOrder("Animal Order") {
         @Override
         public String taskDefKey() {
             return "animalOrder";
@@ -1173,9 +1108,11 @@ public enum IacucStatus {
 
         @Override
         public int gatewayValue() {
-            return 10;
+            return 999;
         }
     };
+
+
 
     private String codeName;
 
