@@ -1,4 +1,4 @@
-package org.activiti;
+package iacuc;
 
 import java.util.*;
 
@@ -18,7 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import edu.columbia.rascal.business.service.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:org/activiti/test/springUsageTest-context.xml")
+@ContextConfiguration("classpath:activiti/springUsageTest-context.xml")
 public class MyBusinessProcessTest {
 
     private static final Logger log = LoggerFactory.getLogger(MyBusinessProcessTest.class);
