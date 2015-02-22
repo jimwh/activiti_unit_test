@@ -35,131 +35,37 @@ public class MyBusinessProcessTest {
     }
 
     public void testRedistribute() {
-        String bizKey1="foo";
-        String userId="bob";
-        Map<String, Object>processInput=new HashMap<String, Object>();
+
+        String bizKey1 = "foo";
+        String userId = "bob";
+        Map<String, Object> processInput = new HashMap<String, Object>();
         processInput.put("hasAppendixA", true);
         processInput.put("hasAppendix", true);
         headerService.startProtocolProcess(bizKey1, userId, processInput);
         printOpenTaskList(bizKey1);
+
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         distributeToDesignatedReviewer(bizKey1, "admin", rvList);
-        //log.info("allRvs={}", getAllRvs(bizKey1));
-        //log.info("numOfRvs={}", getNumOfRvs(bizKey1));
-        //log.info("hasReviewerAction={}", hasReviewerAction(bizKey1));
-        //printOpenTaskList(bizKey1);
-        //
-        safetyOfficerAction(bizKey1,userId,IacucStatus.SOPreApproveA.taskDefKey(),IacucStatus.SOPreApproveA.statusName(),"foo");
-        printOpenTaskList(bizKey1);
-        //
-        // log.info("canRedistribute={}", headerService.canRedistribute(bizKey1));
-
-/*
-        reviewerAction(bizKey1,userId,
-                IacucStatus.Rv1Approval.taskDefKey(),IacucStatus.Rv1Approval.statusName(),
-                "foo bar");
-*/
-
-        log.info("canRedistribute={}", headerService.canRedistribute(bizKey1));
-        IacucTaskForm taskForm=new IacucTaskForm();
-        taskForm.setBizKey(bizKey1);
-        taskForm.setAuthor("jj");
-        taskForm.setTaskDefKey(IacucStatus.Redistribute.taskDefKey());
-        taskForm.setTaskName(IacucStatus.Redistribute.statusName());
-        headerService.completeTaskByTaskForm(taskForm);
+        completeTask(bizKey1, userId, IacucStatus.SOPreApproveA.taskDefKey(), IacucStatus.SOPreApproveA.statusName(), "foo");
         printOpenTaskList(bizKey1);
 
-        /*
+        //completeTask(bizKey1, userId, IacucStatus.Rv1Approval.taskDefKey(), IacucStatus.Rv1Approval.statusName(), "foo bar");
+
+        if (headerService.canRedistribute(bizKey1)) {
+            completeTask(bizKey1, userId, IacucStatus.Redistribute.taskDefKey(), IacucStatus.Redistribute.statusName(), "redistribution now");
+        }
+
+        printOpenTaskList(bizKey1);
         returnToPI(bizKey1, "admin");
-        //
-        String bizKey2="foo1";
-        String userId1="Tom";
-        startProtocolProcess(bizKey2, userId1);
-        rvList = new ArrayList<String>();
-        rvList.add("Sam");
-        distributeToDesignatedReviewer(bizKey2, "admin", rvList);
-        u1Approval(bizKey2, "Sam");
-        log.info("foo={}", getAllRvs(bizKey2));
-        returnToPI(bizKey2, "admin");
-
-        HistoricProcessInstance hp1=activitiRule.getHistoryService()
-                .createHistoricProcessInstanceQuery()
-                .processInstanceBusinessKey(bizKey1)
-                .finished()
-                .singleResult();
-        log.info("startUser1={}", hp1.getStartUserId());
-
-        HistoricProcessInstance hp2=activitiRule.getHistoryService()
-                .createHistoricProcessInstanceQuery()
-                .processInstanceBusinessKey(bizKey2)
-                .finished()
-                .singleResult();
-        log.info("startUser2={}", hp2.getStartUserId());
-        */
-
-        /*
-        u2Approval(bizKey, "Dave");
-        printOpenTaskList(bizKey);
-        finalApproval(bizKey, "admin");
-        printOpenTaskList(bizKey);
-        // undoApproval(bizKey, "admin");
-        animalOrder(bizKey, "admin");
-        */
-        //printOpenTaskList(bizKey);
-        //printHistory(bizKey);
 
     }
 
-
-    public void fooTest() {
-
-        String bizKey="foo";
-        String userId="bob";
-        Map<String,Object>hasAppendix=new HashMap<String, Object>();
-        hasAppendix.put("hasAppendixA", true);
-        hasAppendix.put("hasAppendixB", true);
-
-        headerService.startProtocolProcess(bizKey, userId, hasAppendix);
-
-        // distribute it to reviewers
-        List<String> rvList = new ArrayList<String>();
-        rvList.add("Sam");
-        rvList.add("Dave");
-        distributeToDesignatedReviewer(bizKey, "admin", rvList);
-        //printOpenTaskList(bizKey);
-
-        // reviewer approval
-        // u1Approval(bizKey, "Sam");
-        approveAppendixA(bizKey, "safetyOfficeDam");
-        //holdAppendixB(bizKey, "safetyOfficeHolder");
-        approveAppendixB(bizKey, "safetyOfficeHolder");
-        // u2Approval(bizKey, "Dave");
-
-        printOpenTaskList(bizKey);
-
-        // u2Hold(bizKey, "Dave");
-
-        //finalApproval(bizKey, "admin");
-        // undoApproval(bizKey, "admin");
-        // returnToPI(bizKey, "admin");
-
-        //printCurrentApprovalStatus(bizKey);
-
-        // try{ Thread.sleep(5000);}catch(InterruptedException e){}
-
-        //printCurrentApprovalStatus(bizKey);
-
-        //log.info("taskCount={}", taskCount(bizKey));
-
-        //printHistory(bizKey);
-
-    }
 
     public void dist2SubcommitteeWithAppendix() {
-        String bizKey="foo";
-        String userId="bob";
-        Map<String,Object>hasAppendix=new HashMap<String, Object>();
+        String bizKey = "foo";
+        String userId = "bob";
+        Map<String, Object> hasAppendix = new HashMap<String, Object>();
         hasAppendix.put("hasAppendixA", true);
         headerService.startProtocolProcess(bizKey, userId, hasAppendix);
         distToSubcommittee(bizKey, "admin");
@@ -174,23 +80,9 @@ public class MyBusinessProcessTest {
         printOpenTaskList(bizKey);
     }
 
-    public void noAppendix() {
-        String bizKey="foo";
-        headerService.startProtocolProcess(bizKey, "foo");
-
-        distToSubcommittee(bizKey, "admin");
-        //approveAppendixA(bizKey, "safetyOfficeDam");
-        //holdAppendixB(bizKey, "safetyOfficeHolder");
-        // subcommitteeReview(bizKey, "admin");
-        //returnToPI(bizKey, "admin");
-        log.info("taskCount={}", taskCount(bizKey));
-        printOpenTaskList(bizKey);
-    }
-
     public void foo() {
-
-        String[] bizKeys ={"1", "2", "3", "4", "5"};
-        for(String bk: bizKeys) {
+        String[] bizKeys = {"1", "2", "3", "4", "5"};
+        for (String bk : bizKeys) {
             // for appendix if any
             Map<String, Object> processMap = new HashMap<String, Object>();
             processMap.put("hasAppendix", false);
@@ -204,7 +96,6 @@ public class MyBusinessProcessTest {
             processMap.put("hasAppendixI", false);
             headerService.startProtocolProcess(bk, "bob", processMap);
 
-
             distToSubcommittee(bk, "admin");
             //approveAppendixA(bizKey, "safetyOfficeDam");
             //holdAppendixB(bizKey, "safetyOfficeHolder");
@@ -213,24 +104,14 @@ public class MyBusinessProcessTest {
             //log.info("taskCount={}", taskCount(bizKey));
             //printOpenTaskList(bizKey);
         }
-        Set<String>set=new HashSet<String>();
-        Map<String,Date>map = headerService.getBizKeyMeetingDate(set);
-        for(String bizKey: set){
+        Set<String> set = new HashSet<String>();
+        Map<String, Date> map = headerService.getBizKeyMeetingDate(set);
+        for (String bizKey : set) {
             log.info("bizKey={}", bizKey);
         }
-        for(Map.Entry<String,Date>e: map.entrySet()){
-            log.info("bizKey={}, meetingDate={}", e.getKey(),e.getValue());
+        for (Map.Entry<String, Date> e : map.entrySet()) {
+            log.info("bizKey={}, meetingDate={}", e.getKey(), e.getValue());
         }
-        //
-    }
-
-    void submit(String bizKey) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor("bob");
-        iacucTaskForm.setTaskName(IacucStatus.Submit.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.Submit.taskDefKey());
-        headerService.completeTaskByTaskForm(iacucTaskForm);
     }
 
     void returnToPI(String bizKey, String user) {
@@ -240,7 +121,6 @@ public class MyBusinessProcessTest {
         iacucTaskForm.setComment("no choice but back to PI...");
         iacucTaskForm.setTaskName(IacucStatus.ReturnToPI.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.ReturnToPI.taskDefKey());
-        //
         IacucCorrespondence corr1 = new IacucCorrespondence();
         corr1.setFrom(user);
         corr1.setRecipient("PI");
@@ -249,11 +129,7 @@ public class MyBusinessProcessTest {
         corr1.setText("Question about your protocol bla bla ...");
         corr1.apply();
         iacucTaskForm.setCorrespondence(corr1);
-        //
         headerService.completeTaskByTaskForm(iacucTaskForm);
-        // completed return-2-pi, there is no task and no instance
-        // Assert.assertEquals(0, taskCount(bizKey));
-        // Assert.assertNull(getProtocolProcessInstance(bizKey));
     }
 
     void distToSubcommittee(String bizKey, String user) {
@@ -266,7 +142,6 @@ public class MyBusinessProcessTest {
         iacucTaskForm.setDate(new Date());
         headerService.completeTaskByTaskForm(iacucTaskForm);
     }
-
 
     void distributeToDesignatedReviewer(String bizKey, String user, List<String> reviewerList) {
         IacucDistributeReviewerForm iacucTaskForm = new IacucDistributeReviewerForm();
@@ -288,48 +163,6 @@ public class MyBusinessProcessTest {
         headerService.completeTaskByTaskForm(iacucTaskForm);
     }
 
-    void approveAppendixA(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("reviewed and approve appendix-A...");
-        iacucTaskForm.setTaskName(IacucStatus.SOPreApproveA.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.SOPreApproveA.taskDefKey());
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
-    void approveAppendixB(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("reviewed and approve appendix-B...");
-        iacucTaskForm.setTaskName(IacucStatus.SOPreApproveB.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.SOPreApproveB.taskDefKey());
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
-    void holdAppendixA(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("reviewed but hold appendix-A...");
-        iacucTaskForm.setTaskName(IacucStatus.SOHoldA.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.SOHoldA.taskDefKey());
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
-
-    void reviewerAction(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(userId);
-        iacucTaskForm.setComment(comment);
-        iacucTaskForm.setTaskName(taskName);
-        iacucTaskForm.setTaskDefKey(taskDefKey);
-        headerService.completeTaskByTaskForm(iacucTaskForm);
-    }
-
-
     void finalApproval(String bizKey, String user) {
         IacucTaskForm iacucTaskForm = new IacucTaskForm();
         iacucTaskForm.setBizKey(bizKey);
@@ -337,7 +170,6 @@ public class MyBusinessProcessTest {
         iacucTaskForm.setComment("final approval");
         iacucTaskForm.setTaskName(IacucStatus.FinalApproval.statusName());
         iacucTaskForm.setTaskDefKey(IacucStatus.FinalApproval.taskDefKey());
-        //
         IacucCorrespondence corr = new IacucCorrespondence();
         corr.setFrom(user);
         corr.setRecipient("pi");
@@ -346,31 +178,8 @@ public class MyBusinessProcessTest {
         corr.setText("Your protocol has been approved.");
         corr.apply();
         iacucTaskForm.setCorrespondence(corr);
-        //completeTaskByTaskForm(iacucTaskForm);
+        headerService.completeTaskByTaskForm(iacucTaskForm);
     }
-
-    void undoApproval(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("undo approval");
-        iacucTaskForm.setTaskName(IacucStatus.UndoApproval.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.UndoApproval.taskDefKey());
-        //
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
-    void animalOrder(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("order animal now");
-        iacucTaskForm.setTaskName(IacucStatus.AnimalOrder.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.AnimalOrder.taskDefKey());
-        //
-        //completeTaskByTaskForm(iacucTaskForm);
-    }
-
 
     long taskCount(String bizKey) {
         return taskService
@@ -382,11 +191,10 @@ public class MyBusinessProcessTest {
         log.info("open tasks:");
         List<Task> taskList = taskService
                 .createTaskQuery()
-                //.processDefinitionKey(IacucProcessService.ProtocolProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
                 .list();
         for (Task task : taskList) {
-            log.info("taskDefKey={},taskName={}",task.getTaskDefinitionKey(), task.getName());
+            log.info("taskDefKey={},taskName={}", task.getTaskDefinitionKey(), task.getName());
         }
     }
 
@@ -397,19 +205,19 @@ public class MyBusinessProcessTest {
         }
     }
 
-
-/*
-    void printCurrentApprovalStatus(String bizKey) {
-        log.info("...............................................................\n");
-        log.info("get all tasks from current process including open/closed tasks...");
-        List<IacucTaskForm> list = getCurrentApprovalStatus(bizKey);
-        for (IacucTaskForm form : list) {
-            log.info(form.toString());
+    /*
+        void printCurrentApprovalStatus(String bizKey) {
+            log.info("...............................................................\n");
+            log.info("get all tasks from current process including open/closed tasks...");
+            List<IacucTaskForm> list = getCurrentApprovalStatus(bizKey);
+            for (IacucTaskForm form : list) {
+                log.info(form.toString());
+            }
+            log.info("...............................................................\n");
         }
-        log.info("...............................................................\n");
-    }
-*/
-    void safetyOfficerAction(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
+    */
+
+    private void completeTask(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
         IacucTaskForm taskForm = new IacucTaskForm();
         taskForm.setBizKey(bizKey);
         taskForm.setAuthor(userId);
