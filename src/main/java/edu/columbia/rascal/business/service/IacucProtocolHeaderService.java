@@ -44,6 +44,6 @@ public class IacucProtocolHeaderService {
     }
 
     public boolean canRedistribute(String bizKey) {
-        return processService.canRedistribute(bizKey);
+        return !processService.hasReviewerAction(bizKey);
     }
 }

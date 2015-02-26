@@ -1,9 +1,6 @@
 package edu.columbia.rascal.business.service;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import edu.columbia.rascal.business.service.review.iacuc.IacucStatus;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.history.HistoricTaskInstance;
@@ -15,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import edu.columbia.rascal.business.service.review.iacuc.IacucStatus;
+import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 class IacucProcessQueryService {
@@ -58,25 +56,11 @@ class IacucProcessQueryService {
         return query != null ? query.list() : null;
     }
 
-    boolean hasAssigneeTask(String taskDefKey, String bizKey, String assignee) {
-    	Assert.notNull(bizKey, "undefined bizKey");
-    	Assert.notNull(assignee, "undefined assignee");
+    List<Task> getOpenReviewerTasks() {
         TaskQuery query = taskService.createTaskQuery()
-                .processDefinitionKey(IacucProcessService.ProtocolProcessDefKey)
-                .processInstanceBusinessKey(bizKey)
-                .taskDefinitionKey(taskDefKey)
-                .taskAssignee(assignee);
-        return (query != null) && (query.singleResult() != null);
-    }
-
-
-    List<Task> getOpenTasksByAssignee(String assignee) {
-    	Assert.notNull(assignee, "undefined assignee");
-    	TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(IacucProcessService.ProtocolProcessDefKey)
                 .includeProcessVariables()
                 .taskDefinitionKeyLike("rv%")
-                .taskAssignee(assignee)
                 .orderByTaskCreateTime()
                 .desc();
         return query != null ? query.list() : null;
@@ -84,7 +68,6 @@ class IacucProcessQueryService {
 
     List<HistoricTaskInstance> getHistoricTaskInstanceListByAssignee(String assignee) {
     	Assert.notNull(assignee,"undefined assignee");
-
         try {
             HistoricTaskInstanceQuery query = historyService
                     .createHistoricTaskInstanceQuery()
@@ -100,7 +83,6 @@ class IacucProcessQueryService {
             return null;
         }
     }
-
 
 
     HistoricTaskInstance getHistoricTaskInstanceByTaskId(String taskId) {

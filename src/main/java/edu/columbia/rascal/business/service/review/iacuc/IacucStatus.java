@@ -833,7 +833,7 @@ public enum IacucStatus {
     SOPreApproveC("Safety Office Pre-approve Appendix-C") {
         @Override
         public String taskDefKey() {
-            return "soPreApproveB";
+            return "soPreApproveC";
         }
 
         @Override
@@ -855,7 +855,7 @@ public enum IacucStatus {
     SOHoldC("Safety Office Hold Appendix-C") {
         @Override
         public String taskDefKey() {
-            return "soHoldB";
+            return "soHoldC";
         }
 
         @Override
@@ -877,7 +877,7 @@ public enum IacucStatus {
     SOPreApproveD("Safety Office Pre-approve Appendix-D") {
         @Override
         public String taskDefKey() {
-            return "soPreApproveB";
+            return "soPreApproveD";
         }
 
         @Override
@@ -899,7 +899,7 @@ public enum IacucStatus {
     SOHoldD("Safety Office Hold Appendix-D") {
         @Override
         public String taskDefKey() {
-            return "soHoldB";
+            return "soHoldD";
         }
 
         @Override
@@ -920,7 +920,7 @@ public enum IacucStatus {
     SOPreApproveE("Safety Office Pre-approve Appendix-E") {
         @Override
         public String taskDefKey() {
-            return "soPreApproveB";
+            return "soPreApproveE";
         }
 
         @Override
@@ -942,7 +942,7 @@ public enum IacucStatus {
     SOHoldE("Safety Office Hold Appendix-E") {
         @Override
         public String taskDefKey() {
-            return "soHoldB";
+            return "soHoldE";
         }
 
         @Override
@@ -963,7 +963,7 @@ public enum IacucStatus {
     SOPreApproveF("Safety Office Pre-approve Appendix-F") {
         @Override
         public String taskDefKey() {
-            return "soPreApproveB";
+            return "soPreApproveF";
         }
 
         @Override
@@ -985,7 +985,7 @@ public enum IacucStatus {
     SOHoldF("Safety Office Hold Appendix-F") {
         @Override
         public String taskDefKey() {
-            return "soHoldB";
+            return "soHoldF";
         }
 
         @Override
@@ -1006,7 +1006,7 @@ public enum IacucStatus {
     SOPreApproveG("Safety Office Pre-approve Appendix-G") {
         @Override
         public String taskDefKey() {
-            return "soPreApproveB";
+            return "soPreApproveG";
         }
 
         @Override
@@ -1028,7 +1028,7 @@ public enum IacucStatus {
     SOHoldG("Safety Office Hold Appendix-G") {
         @Override
         public String taskDefKey() {
-            return "soHoldB";
+            return "soHoldG";
         }
 
         @Override
@@ -1049,7 +1049,7 @@ public enum IacucStatus {
     SOPreApproveI("Safety Office Pre-approve Appendix-I") {
         @Override
         public String taskDefKey() {
-            return "soPreApproveB";
+            return "soPreApproveI";
         }
 
         @Override
@@ -1071,7 +1071,7 @@ public enum IacucStatus {
     SOHoldI("Safety Office Hold Appendix-I") {
         @Override
         public String taskDefKey() {
-            return "soHoldB";
+            return "soHoldI";
         }
 
         @Override
@@ -1089,7 +1089,7 @@ public enum IacucStatus {
             return 10;
         }
     },
-    
+
     Redistribute("Redistribute") {
         @Override
         public String taskDefKey() {
@@ -1135,16 +1135,7 @@ public enum IacucStatus {
     };
 
 
-
-
-    private String codeName;
-
-    private IacucStatus(String s) {
-        this.codeName = s;
-    }
-
     private static final Set<String> KaputSet = new HashSet<String>();
-
     static {
         KaputSet.add("Release");
         KaputSet.add("UnRelease");
@@ -1187,6 +1178,12 @@ public enum IacucStatus {
         KaputSet.add("VetHoldC");
         KaputSet.add("VetHoldE");
         KaputSet.add("VetHoldF");
+    }
+
+    private String codeName;
+
+    private IacucStatus(String s) {
+        this.codeName = s;
     }
 
     public String statusName() {

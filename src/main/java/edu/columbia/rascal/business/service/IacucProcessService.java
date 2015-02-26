@@ -1,10 +1,9 @@
 package edu.columbia.rascal.business.service;
 
-import java.io.InputStream;
-import java.util.*;
-
-import javax.annotation.Resource;
-
+import edu.columbia.rascal.business.service.review.iacuc.IacucCorrespondence;
+import edu.columbia.rascal.business.service.review.iacuc.IacucDistributeSubcommitteeForm;
+import edu.columbia.rascal.business.service.review.iacuc.IacucStatus;
+import edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.RuntimeService;
@@ -13,10 +12,7 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Attachment;
-import org.activiti.engine.task.Comment;
-import org.activiti.engine.task.Task;
-import org.activiti.engine.task.TaskQuery;
+import org.activiti.engine.task.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,23 +20,39 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import edu.columbia.rascal.business.service.review.iacuc.IacucCorrespondence;
-import edu.columbia.rascal.business.service.review.iacuc.IacucDistributeSubcommitteeForm;
-import edu.columbia.rascal.business.service.review.iacuc.IacucStatus;
-import edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm;
+import javax.annotation.Resource;
+import java.io.InputStream;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 class IacucProcessService {
 
     public static final String ProtocolProcessDefKey = "IacucApprovalProcess";
     public static final String AdverseEventDefKey = "IacucAdverseEvent";
-
     private static final String START_GATEWAY = "START_GATEWAY";
-
     private static final String SNAPSHOT = "snapshot";
     private static final String IACUC_COORESPONDENCE = "IacucCorrespondence";
+    private static final String TASK_FORM_LOOKUP_PREFIX = "iacucTaskForm";
+    private static final String TASK_COMPLETED = "completed";
 
     private static final Logger log = LoggerFactory.getLogger(IacucProcessService.class);
+
+    private static final Map<String, String> AppendixMap = new HashMap<String, String>();
+
+    static {
+        AppendixMap.put("A", "hasAppendixA");
+        AppendixMap.put("B", "hasAppendixB");
+        AppendixMap.put("C", "hasAppendixC");
+        AppendixMap.put("D", "hasAppendixD");
+        AppendixMap.put("E", "hasAppendixE");
+        AppendixMap.put("F", "hasAppendixF");
+        AppendixMap.put("G", "hasAppendixG");
+        AppendixMap.put("I", "hasAppendixI");
+    }
+
+    private static final String REG_PATTER = "^IACUC_(\\B[A-Z]+_\\B)+[A-Z]+$";
+    private static final Pattern IacucAuthorityPattern = Pattern.compile(REG_PATTER);
 
     @Resource
     private RuntimeService runtimeService;
@@ -53,7 +65,14 @@ class IacucProcessService {
     @Resource
     private IacucProcessQueryService iacucProcessQueryService;
 
+    public static String GetAppendixMapKey(String appendixType) {
+        return AppendixMap.get(appendixType);
+    }
 
+    public static boolean MatchIacucAuthority(String authority) {
+        return IacucAuthorityPattern.matcher(authority).matches();
+    }
+    
     @Transactional
     boolean startProtocolProcess(String protocolId, String userId, Map<String, Object> processInput) {
         Assert.notNull(processInput);
@@ -65,7 +84,6 @@ class IacucProcessService {
         ProcessInstance instance = runtimeService.startProcessInstanceByKey(ProtocolProcessDefKey, protocolId, processInput);
         identityService.setAuthenticatedUserId(userId);
         runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), IacucStatus.Submit.name());
-
         log.info("protocolId={}, activityId={}, processId={}", protocolId, instance.getActivityId(), instance.getId());
         return true;
     }
@@ -74,11 +92,7 @@ class IacucProcessService {
         return getProtocolProcessInstance(bizKey, IacucStatus.Submit.name()) != null;
     }
 
-    boolean hasAssigneeTask(String taskDefKey, String bizKey, String assignee) {
-        return iacucProcessQueryService.hasAssigneeTask(taskDefKey, bizKey, assignee);
-    }
-
-    boolean hasAssigneeTask(String bizKey) {
+    boolean hasReviewerTask(String bizKey) {
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(IacucProcessService.ProtocolProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
@@ -152,7 +166,7 @@ class IacucProcessService {
         //
         Map<String, Object> localMap = hs.getTaskLocalVariables();
         @SuppressWarnings("unchecked")
-        Map<String, String> taskMap = (Map<String, String>) localMap.get("iacucTaskForm" + hs.getId());
+        Map<String, String> taskMap = (Map<String, String>) localMap.get(TASK_FORM_LOOKUP_PREFIX + hs.getId());
         if (taskMap != null) {
             form.setProperties(taskMap);
             form.setComment(getCommentText(form.getCommentId()));
@@ -218,10 +232,14 @@ class IacucProcessService {
 
 
     Set<String> getBizKeyFromOpenTasksByAssignee(String uni) {
+        Assert.notNull(uni);
         Set<String> list = new TreeSet<String>();
-        List<Task> taskList = iacucProcessQueryService.getOpenTasksByAssignee(uni);
+        List<Task> taskList = iacucProcessQueryService.getOpenReviewerTasks();
         if (taskList == null) return list;
         for (Task task : taskList) {
+            if (!uni.equals(getUserIdFromIdentityLink(task.getId()))) {
+                continue;
+            }
             String bizKey = getBizKeyFromRuntime(task.getProcessInstanceId());
             if (bizKey != null) {
                 list.add(bizKey);
@@ -308,7 +326,7 @@ class IacucProcessService {
     }
 
 
-    Set<String> getBizKeyWithDesignatedReviewTask() {
+    Set<String> getBizKeyHasDesignatedReviewTask() {
         Set<String> set = new TreeSet<String>();
         List<Task> taskList = iacucProcessQueryService.getDesignatedReviewTasks();
         if (taskList == null) return set;
@@ -318,6 +336,7 @@ class IacucProcessService {
                 set.add(protocolId);
             }
         }
+        log.info("BizKey has designated review task: size={}", set.size());
         return set;
     }
 
@@ -440,7 +459,7 @@ class IacucProcessService {
         return getProcessInstanceByName(bizKey, instanceName);
     }
 
-    public Map<String, Date> getBizKeyMeetingDate(Set<String> bizKeys) {
+    Map<String, Date> getBizKeyMeetingDate(Set<String> bizKeys) {
         Assert.notNull(bizKeys);
         Map<String, Date> bizKeyMeetingDate = new HashMap<String, Date>();
         List<ProcessInstance> list = runtimeService
@@ -450,7 +469,7 @@ class IacucProcessService {
                 .includeProcessVariables().list();
         for (ProcessInstance instance : list) {
             String protocolId = instance.getBusinessKey();
-            if (hasAssigneeTask(protocolId)) {
+            if (hasReviewerTask(protocolId)) {
                 // don't show these in admin-queue
                 continue;
             }
@@ -489,14 +508,18 @@ class IacucProcessService {
             runtimeService.deleteProcessInstance(instance.getProcessInstanceId(), reason);
     }
 
+
     String getTaskAssignee(String taskDefKey, String bizKey) {
         Task task = taskService.createTaskQuery()
                 .processDefinitionKey(ProtocolProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
                 .taskDefinitionKey(taskDefKey)
                 .singleResult();
-        return task == null ? null : task.getAssignee();
+        //return task==null ? null: task.getAssignee();
+        if (task == null) return null;
+        return getUserIdFromIdentityLink(task.getId());
     }
+
 
     List<IacucTaskForm> getPreviousNote(String bizKey) {
         List<IacucTaskForm> list = new ArrayList<IacucTaskForm>();
@@ -517,7 +540,7 @@ class IacucProcessService {
             if (localMap == null) continue;
 
             @SuppressWarnings("unchecked")
-            Map<String, String> map = (Map<String, String>) localMap.get("iacucTaskForm" + hs.getId());
+            Map<String, String> map = (Map<String, String>) localMap.get(TASK_FORM_LOOKUP_PREFIX + hs.getId());
             if (map == null) continue;
             IacucTaskForm taskForm = new IacucTaskForm();
             taskForm.setTaskId(hs.getId());
@@ -556,7 +579,6 @@ class IacucProcessService {
         String bizKey = iacucTaskForm.getBizKey();
         Assert.notNull(bizKey);
         String taskDefKey = iacucTaskForm.getTaskDefKey();
-        Assert.notNull(bizKey);
         Task task = getTask(processDefKey, bizKey, taskDefKey);
         Assert.notNull(task);
         String taskId = task.getId();
@@ -575,7 +597,7 @@ class IacucProcessService {
         // attach attribute to this task
         Map<String, String> attribute = iacucTaskForm.getProperties();
         if (attribute != null && !attribute.isEmpty())
-            taskService.setVariableLocal(taskId, "iacucTaskForm" + taskId, attribute);
+            taskService.setVariableLocal(taskId, TASK_FORM_LOOKUP_PREFIX + taskId, attribute);
 
         // attach correspondence to this task
         IacucCorrespondence corr = iacucTaskForm.getCorrespondence();
@@ -656,7 +678,7 @@ class IacucProcessService {
             //
             Map<String, Object> localMap = hs.getTaskLocalVariables();
             @SuppressWarnings("unchecked")
-            Map<String, String> taskMap = (Map<String, String>) localMap.get("iacucTaskForm" + hs.getId());
+            Map<String, String> taskMap = (Map<String, String>) localMap.get(TASK_FORM_LOOKUP_PREFIX + hs.getId());
 
             // restore the original attribute
             iacucTaskForm.setProperties(taskMap);
@@ -704,7 +726,8 @@ class IacucProcessService {
                 .createHistoricTaskInstanceQuery()
                 .processDefinitionKey(processDefKey)
                 .processInstanceBusinessKey(bizKey).finished()
-                .taskDeleteReason("completed").includeTaskLocalVariables()
+                .taskDeleteReason(TASK_COMPLETED)
+                .includeTaskLocalVariables()
                 .orderByHistoricTaskInstanceEndTime().desc();
         return query != null ? query.list() : null;
     }
@@ -738,30 +761,31 @@ class IacucProcessService {
     }
 
 
-    List<Task> getOpenTasksByBizKeyAndCandidateGroup(String bizKey, List<String> candidateGroup) {
-        log.info("candidateGroup.siz=" + candidateGroup.size());
+    List<Task> getOpenTasksByBizKeyAndCandidateGroup(String bizKey, String userId, List<String> candidateGroup) {
         Assert.notNull(bizKey, "undefined bizKey");
         TaskQuery query = taskService.createTaskQuery()
                 .processDefinitionKey(IacucProcessService.ProtocolProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
-                        // .taskCandidateGroupIn(candidateGroup)
-                .includeProcessVariables();
+                .taskCandidateGroupIn(candidateGroup);
         if (query == null) return null;
         List<Task> list = query.list();
-        if (list.isEmpty()) return null;
         List<Task> retList = new ArrayList<Task>();
         Task returnToPai = null;
         boolean hasUndoApproval = false;
         boolean hasRvAction = hasReviewerAction(bizKey);
-        log.info("hasReviewerAction={}", hasRvAction);
         for (Task task : list) {
-            if (IacucStatus.ReturnToPI.isDefKey(task.getTaskDefinitionKey())) {
+            String taskDefKey = task.getTaskDefinitionKey();
+            if (IacucStatus.ReturnToPI.isDefKey(taskDefKey)) {
                 returnToPai = task;
                 continue;
-            } else if (IacucStatus.UndoApproval.isDefKey(task.getTaskDefinitionKey())) {
+            } else if (IacucStatus.UndoApproval.isDefKey(taskDefKey)) {
                 hasUndoApproval = true;
-            } else if (IacucStatus.Redistribute.isDefKey(task.getTaskDefinitionKey())) {
+            } else if (IacucStatus.Redistribute.isDefKey(taskDefKey)) {
                 if (hasRvAction) continue;
+            } else if (taskDefKey.startsWith("rv")) {
+                if (!userId.equals(getUserIdFromIdentityLink(task.getId()))) {
+                    continue;
+                }
             }
             retList.add(task);
         }
@@ -772,191 +796,76 @@ class IacucProcessService {
         return retList;
     }
 
-    boolean canRedistribute(String bizKey) {
-        return !hasReviewerAction(bizKey);
-    }
-
     boolean hasReviewerAction(String bizKey) {
         String processInstanceId = getCurrentProtocolProcessInstanceId(bizKey);
         HistoricTaskInstanceQuery query = historyService
                 .createHistoricTaskInstanceQuery()
-                .finished()
                 .processInstanceBusinessKey(bizKey)
                 .processInstanceId(processInstanceId)
-                .taskDefinitionKeyLike("rv%");
+                .taskDefinitionKeyLike("rv%")
+                .finished()
+                .taskDeleteReason(TASK_COMPLETED);
         return query != null && !query.list().isEmpty();
     }
 
-
-    boolean getAllRvs(String bizKey) {
-        ProcessInstance instance = runtimeService
-                .createProcessInstanceQuery()
+    Set<String> getReviewers(String bizKey) {
+        Set<String> reviewers = new HashSet<String>();
+        List<Task> list = taskService.createTaskQuery()
+                .processDefinitionKey(ProtocolProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
-                .includeProcessVariables()
-                .singleResult();
-        Map<String, Object> map = instance.getProcessVariables();
-        return (Boolean) map.get("allRvs");
-    }
-
-    int getNumOfRvs(String bizKey) {
-        ProcessInstance instance = runtimeService
-                .createProcessInstanceQuery()
-                .processInstanceBusinessKey(bizKey)
-                .includeProcessVariables()
-                .singleResult();
-        Map<String, Object> map = instance.getProcessVariables();
-        return (Integer) map.get("numOfRvs");
-    }
-
-    /*
-    boolean hasReviewerAction(String bizKey) {
-        String processInstanceId=getCurrentProcessInstanceId(bizKey);
-        HistoricTaskInstanceQuery query=
-                historyService.createHistoricTaskInstanceQuery()
-                        .finished()
-                        .processInstanceBusinessKey(bizKey)
-                        .processInstanceId(processInstanceId)
-                        .taskDefinitionKeyLike("rv%");
-        return query!=null && !query.list().isEmpty() && query.list().isEmpty();
-    }
-    */
-
-    /*
-    List<IacucTaskForm> getCurrentApprovalStatus(String bizKey) {
-        List<IacucTaskForm> listIacucTaskForm = new ArrayList<IacucTaskForm>();
-        String processId = getCurrentProcessInstanceId(bizKey);
-        if (processId == null) return listIacucTaskForm;
-
-
-        HistoricTaskInstanceQuery query = historyService
-                .createHistoricTaskInstanceQuery()
-                        // .processDefinitionKey(ProcessDefKey)
-                .processInstanceBusinessKey(bizKey)
-                        // for sub-process
-                        //.processVariableValueEquals("BusinessKey", bizKey)
-                        // .processInstanceId(processId)
-                .includeTaskLocalVariables()
-                .orderByHistoricTaskInstanceEndTime()
-                .orderByTaskCreateTime()
-                .desc();
-        List<HistoricTaskInstance> list = query.list();
-
-        for (HistoricTaskInstance hs : list) {
-            if ("deleted".equals(hs.getDeleteReason())) continue;
-            IacucTaskForm iacucTaskForm = new IacucTaskForm();
-            iacucTaskForm.setTaskId(hs.getId());
-            iacucTaskForm.setEndTime(hs.getEndTime());
-            iacucTaskForm.setTaskDefKey(hs.getTaskDefinitionKey());
-            iacucTaskForm.setTaskName(hs.getName());
-            //
-            Map<String, Object> localMap = hs.getTaskLocalVariables();
-            //noinspection unchecked
-            Map<String, String> taskMap = (Map<String, String>) localMap.get("iacucTaskForm" + hs.getId());
-
-            // restore the original attribute
-            iacucTaskForm.setProperties(taskMap);
-            iacucTaskForm.setComment(getCommentText(iacucTaskForm.getCommentId()));
-            listIacucTaskForm.add(iacucTaskForm);
+                .taskDefinitionKeyLike("rv%")
+                .list();
+        for (Task task : list) {
+            String assignee = getUserIdFromIdentityLink(task.getId());
+            if (assignee != null) {
+                reviewers.add(assignee);
+            }
         }
-        return listIacucTaskForm;
-    }
-    */
-
-    /*
-
-    // protocol approval process
-    void startProtocolProcess(String bizKey, String userId) {
-        identityService.setAuthenticatedUserId(userId);
-        ProcessInstance instance = getProtocolProcessInstance(bizKey);
-        org.junit.Assert.assertNull("dude i am expecting null", instance);
-        Map<String, Object> processMap = new HashMap<String, Object>();
-        processMap.put(START_GATEWAY, IacucStatus.Submit.gatewayValue());
-        // for call activity
-        processMap.put("BusinessKey", bizKey);
-        ProcessInstance processInstance = starProcess(bizKey, userId, processMap, IacucStatus.Submit.name());
-        org.junit.Assert.assertNotNull(processInstance);
-        submit(bizKey);
-    }
-    */
-
-    /*
-    void startProtocolProcess(String bizKey, String userId, Map<String, Object> processMap) {
-        org.junit.Assert.assertNotNull("dude can't be null", processMap);
-
-        ProcessInstance instance = getProtocolProcessInstance(bizKey);
-        org.junit.Assert.assertNull("dude i am expecting null", instance);
-
-        processMap.put(START_GATEWAY, IacucStatus.Submit.gatewayValue());
-        // for call activity
-        processMap.put("BusinessKey", bizKey);
-        ProcessInstance processInstance = starProcess(bizKey, userId, processMap, IacucStatus.Submit.name());
-        org.junit.Assert.assertNotNull(processInstance);
-        submit(bizKey);
-    }
-    */
-
-    /*
-    ProcessInstance getProtocolProcessInstance(String bizKey) {
-        return getProcessInstanceByName(bizKey, IacucStatus.Submit.name());
+        return reviewers;
     }
 
-    // add correspondence process
-    void startCorrProcess(String bizKey, String userId) {
-        ProcessInstance instance = getCorrProcessInstance(bizKey);
-        org.junit.Assert.assertNull("dude", instance);
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(START_GATEWAY, IacucStatus.AddCorrespondence.gatewayValue());
-        starProcess(bizKey, userId, map, IacucStatus.AddCorrespondence.name());
+    private String getUserIdFromIdentityLink(String taskId) {
+        List<IdentityLink> list = taskService.getIdentityLinksForTask(taskId);
+        for (IdentityLink link : list) {
+            String userId = link.getUserId();
+            if (userId != null) return userId;
+        }
+        return null;
     }
 
-    ProcessInstance getCorrProcessInstance(String bizKey) {
-        return getProcessInstanceByName(bizKey, IacucStatus.AddCorrespondence.name());
-    }
-
-    // add note process
-    void startAddNoteProcess(String bizKey, String userId) {
-        ProcessInstance instance = getNoteProcessInstance(bizKey);
-        org.junit.Assert.assertNull("dude", instance);
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(START_GATEWAY, IacucStatus.AddNote.gatewayValue());
-        starProcess(bizKey, userId, map, IacucStatus.AddNote.name());
-    }
-
-    ProcessInstance getNoteProcessInstance(String bizKey) {
-        return getProcessInstanceByName(bizKey, IacucStatus.AddNote.name());
-    }
-
-    ProcessInstance getProcessInstanceByName(String bizKey, String instanceName) {
-        return runtimeService
-                .createProcessInstanceQuery()
-                .processDefinitionKey(ProcessDefKey)
+    Set<String> getActionedReviewers(String bizKey) {
+        String processInstanceId = getCurrentProtocolProcessInstanceId(bizKey);
+        List<HistoricTaskInstance> list = historyService
+                .createHistoricTaskInstanceQuery()
                 .processInstanceBusinessKey(bizKey)
-                .processInstanceName(instanceName)
-                .includeProcessVariables()
-                .singleResult();
+                .processInstanceId(processInstanceId)
+                .taskDefinitionKeyLike("rv%")
+                .finished()
+                .taskDeleteReason(TASK_COMPLETED).list();
+        Set<String> reviewers = new HashSet<String>();
+        for (HistoricTaskInstance task : list) {
+            String assignee = task.getAssignee();
+            if (assignee != null) {
+                reviewers.add(assignee);
+            }
+        }
+        return reviewers;
     }
 
-    // terminal protocol
-    void startTerminateProtocolProcess(String bizKey, String userId) {
-        ProcessInstance instance = getProtocolProcessInstance(bizKey);
-        org.junit.Assert.assertNull("dude ", instance);
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(START_GATEWAY, IacucStatus.Terminate.gatewayValue());
-        starProcess(bizKey, userId, map, IacucStatus.Terminate.name());
-    }
+    void replaceReviewer(String bizKey, String newUserId, String oldUserId) {
+        List<Task> taskList = taskService.createTaskQuery()
+                .processDefinitionKey(ProtocolProcessDefKey)
+                .processInstanceBusinessKey(bizKey)
+                .taskDefinitionKeyLike("rv%")
+                .list();
 
-    ProcessInstance starProcess(String bizKey, String userId, Map<String, Object> map, String instanceName) {
-
-        identityService.setAuthenticatedUserId(userId);
-        ProcessInstance instance = runtimeService.startProcessInstanceByKey(ProtocolProcessDefKey, bizKey, map);
-        runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), instanceName);
-        return instance;
+        for (Task task : taskList) {
+            String taskId = task.getId();
+            if (oldUserId.equals(getUserIdFromIdentityLink(taskId))) {
+                taskService.deleteCandidateUser(taskId, oldUserId);
+                taskService.addCandidateUser(taskId, newUserId);
+            }
+        }
     }
-
-    String getCurrentProcessInstanceId(String bizKey) {
-        ProcessInstance instance = getProtocolProcessInstance(bizKey);
-        return instance != null ? instance.getProcessInstanceId() : null;
-    }
-    */
 
 }

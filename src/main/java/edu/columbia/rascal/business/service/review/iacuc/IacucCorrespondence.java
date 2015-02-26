@@ -5,15 +5,11 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IacucCorrespondence {
 
+    private static final Logger log = LoggerFactory.getLogger(IacucCorrespondence.class);
     private String id;
     private String from;
     private String recipient;
@@ -21,10 +17,9 @@ public class IacucCorrespondence {
     private String subject;
     private String text;
     private Date creationDate;
-
     private String fromFirstLastNameUni;
-
-    private static final Logger log = LoggerFactory.getLogger(IacucCorrespondence.class);
+    // just for front show purpose
+    private boolean showCorrToUser = false;
 
     public String getId() {
         return id;
@@ -34,22 +29,24 @@ public class IacucCorrespondence {
         return from;
     }
 
-    public boolean isValidFrom() {return !StringUtils.isBlank(this.from);}
-
     public void setFrom(String fromUni) {
         this.from = fromUni;
+    }
+
+    public boolean isValidFrom() {
+        return !StringUtils.isBlank(this.from);
     }
 
     public String getSubject() {
         return subject;
     }
 
-    public boolean isValidSubject() {
-        return !StringUtils.isBlank(this.subject);
-    }
-
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public boolean isValidSubject() {
+        return !StringUtils.isBlank(this.subject);
     }
 
     public String getText() {
@@ -71,12 +68,12 @@ public class IacucCorrespondence {
         }
     }
 
-    public void setFromFirstLastNameUni(String flu) {
-        fromFirstLastNameUni = flu;
-    }
-
     public String getFromFirstLastNameUni() {
         return fromFirstLastNameUni;
+    }
+
+    public void setFromFirstLastNameUni(String flu) {
+        fromFirstLastNameUni = flu;
     }
 
     // it is for activity use, not for you
@@ -92,13 +89,13 @@ public class IacucCorrespondence {
         return recipient;
     }
 
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
+    }
+
     public boolean isValidRecipient() {
         List<String> list = getRecipientAsList();
         return !list.isEmpty();
-    }
-
-    public void setRecipient(String recipient) {
-        this.recipient = recipient;
     }
 
     public List<String> getRecipientAsList() {
@@ -122,7 +119,7 @@ public class IacucCorrespondence {
     }
 
     public boolean recipientContains(String uni) {
-        return this.recipient == null ? false : this.recipient.contains(uni);
+        return this.recipient != null && this.recipient.contains(uni);
     }
 
     public String getCarbonCopy() {
@@ -134,23 +131,26 @@ public class IacucCorrespondence {
     }
 
     public boolean carbonCopyContains(String uni) {
-        return this.carbonCopy == null ? false : this.carbonCopy.contains(uni);
+        return this.carbonCopy != null && this.carbonCopy.contains(uni);
     }
 
     // save data to activity table
     public Map<String, String> getProperties() {
         Map<String, String> map = new HashMap<String, String>();
         if (StringUtils.isBlank(id)) {
-            return map;
-        } else if (StringUtils.isBlank(from)) {
+            apply();
+        }
+        if (StringUtils.isBlank(from)) {
+            log.error("empty from uni");
             return map;
         } else if (StringUtils.isBlank(recipient)) {
+            log.error("empty recipient");
             return map;
         } else if (StringUtils.isBlank(subject)) {
+            log.error("empty subject");
             return map;
         } else if (StringUtils.isBlank(text)) {
-            return map;
-        } else if (creationDate==null) {
+            log.error("empty text");
             return map;
         }
 
@@ -216,9 +216,6 @@ public class IacucCorrespondence {
         DateTime dateTime = new DateTime(creationDate);
         return dateTime.toString("MM/dd/yyyy HH:mm:ss");
     }
-
-    // just for front show purpose
-    private boolean showCorrToUser = false;
 
     public boolean getShowCorrToUser() {
         return showCorrToUser;

@@ -9,7 +9,28 @@ import java.util.*;
 public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskForm> {
 
     private static final Logger log = LoggerFactory.getLogger(IacucTaskForm.class);
+    private static final Set<String> ReviewerTaskDefKeySet = new HashSet<String>();
 
+    static {
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv1Approval.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv1Hold.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv1ReqFullReview.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv2Approval.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv2Hold.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv2ReqFullReview.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv3Approval.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv3Hold.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv3ReqFullReview.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv4Approval.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv4Hold.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv4ReqFullReview.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv5Approval.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv5Hold.taskDefKey());
+        ReviewerTaskDefKeySet.add(IacucStatus.Rv5ReqFullReview.taskDefKey());
+    }
+
+    ;
+    
     private String bizKey;
     private String author;
     private String taskId;
@@ -22,6 +43,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     private IacucCorrespondence iacucCorrespondence;
     private List<String> reviewerList = new ArrayList<String>();
     private Date date;
+    private boolean showNormalUser;
 
     public List<String> getReviewerList() {
         return reviewerList;
@@ -39,10 +61,13 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         this.bizKey = bizKey;
     }
 
+    public Date getEndTime() {
+        return this.endTime;
+    }
+
     public void setEndTime(Date date) {
         this.endTime = date;
     }
-    public Date getEndTime() { return this.endTime; }
 
     public String getAuthor() {
         return author;
@@ -92,14 +117,13 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         this.snapshotId = snapshotId;
     }
 
-    public void setCorrespondence(IacucCorrespondence corr) {
-        this.iacucCorrespondence = corr;
-    }
-
     public IacucCorrespondence getCorrespondence() {
         return this.iacucCorrespondence;
     }
 
+    public void setCorrespondence(IacucCorrespondence corr) {
+        this.iacucCorrespondence = corr;
+    }
 
     public Date getDate() {
         return this.date;
@@ -110,6 +134,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     }
 
     public String getCommentId() { return this.commentId; }
+
     public void setCommentId(String cid) { this.commentId=cid; }
 
     public String getMeetingDateString() {
@@ -128,21 +153,22 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     public Map<String, String> getProperties() {
         Map<String, String> map = new HashMap<String, String>();
 
-        map.put("bizKey", this.bizKey);
+        map.put("bizKey", bizKey);
 
-        map.put("commentId", this.commentId);
-        map.put("snapshotId", this.snapshotId);
-        map.put("author", this.author);
-        map.put("taskName", this.taskName);
-        map.put("taskDefKey", this.taskDefKey);
+        map.put("snapshotId", snapshotId);
+        map.put("commentId", commentId);
+
+        map.put("author", author);
+        map.put("taskName", taskName);
+        map.put("taskDefKey", taskDefKey);
 
         if (date != null) {
             DateTime dateTime = new DateTime(this.date);
             map.put("date", dateTime.toString());
         }
         if(!reviewerList.isEmpty()) {
-            for(int i=0; i<reviewerList.size(); i++) {
-                map.put("rv"+i+1, reviewerList.get(i));
+            for (int i = 1; i < reviewerList.size() + 1; i++) {
+                map.put("rv" + i, reviewerList.get(i - 1));
             }
         }
         //...
@@ -153,12 +179,13 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     public void setProperties(Map<String, String> map) {
         if (map == null || map.isEmpty()) return;
 
-        this.taskName = map.get("taskName");
-        this.taskDefKey = map.get("taskDefKey");
-        this.comment = map.get("bizKey");
-        this.commentId = map.get("commentId");
-        this.author = map.get("author");
-        this.snapshotId = map.get("snapshotId");
+        taskName = map.get("taskName");
+        taskDefKey = map.get("taskDefKey");
+        // this.comment = map.get("comment");
+        snapshotId = map.get("snapshotId");
+        commentId = map.get("commentId");
+        author = map.get("author");
+        bizKey = map.get("bizKey");
         if (map.get("date") != null) {
             String ms = map.get("date");
             DateTime dateTime = new DateTime(ms);
@@ -171,24 +198,6 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
                 reviewerList.add(rv);
             }
         }
-        //...
-    }
-
-    public void setProperty(String id, String value) {
-        if("bizKey".equals(id)) {
-            bizKey=value;
-        }
-        else if ("author".equals(id)) {
-            this.author = value;
-        } else if("commentId".equals(id)) {
-            this.commentId = value;
-        } else if ("comment".equals(id)) {
-            this.comment = value;
-        } else if ("taskName".equals(id)) {
-            this.taskName = value;
-        } else if ("taskDefKey".equals(id)) {
-            this.taskDefKey = value;
-        }
     }
 
     @Override
@@ -199,11 +208,12 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[taskName=").append(this.taskName)
-                .append(",taskDefKey=").append(this.taskDefKey)
-                .append(",author=").append(this.author);
+        sb.append("[taskName=").append(taskName)
+                .append(",taskDefKey=").append(taskDefKey).append(",snapshotId=").append(snapshotId).append(",bizKey=").append(bizKey)
+                .append(",author=").append(author);
+
         if (comment != null) {
-            sb.append(",comment=").append(this.comment);
+            sb.append(",comment=").append(comment);
         }
         if (date != null) {
             sb.append(",date=").append(getMeetingDateString());
@@ -226,5 +236,42 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         if( this.endTime!=null && itf.getEndTime()==null) return 1;
 
         return this.endTime.compareTo(itf.getEndTime());
+    }
+
+    public boolean getShowNormalUser() {
+        return showNormalUser;
+    }
+
+    public void setShowNormalUser(boolean bool) {
+        showNormalUser = bool;
+    }
+
+    public boolean getIsDesignatedReview() {
+        return ReviewerTaskDefKeySet.contains(taskDefKey);
+    }
+
+    public boolean getIsAddCorrespondence() {
+        return IacucStatus.AddCorrespondence.isDefKey(taskDefKey);
+    }
+
+    public boolean getIsSubmission() {
+        return IacucStatus.Submit.isDefKey(this.taskDefKey);
+    }
+
+    public boolean getIsDistributeReivewer() {
+        return IacucStatus.DistributeReviewer.isDefKey(taskDefKey);
+    }
+
+    public boolean getIsDistributeSubcommittee() {
+        return IacucStatus.DistributeSubcommittee.isDefKey(taskDefKey);
+    }
+
+    public boolean getIsSubcommitteeReview() {
+        return getIsDistributeSubcommittee();
+    }
+
+    public String getReviewerListAsString() {
+        if (reviewerList == null || reviewerList.isEmpty()) return "";
+        else return reviewerList.toString();
     }
 }

@@ -1,13 +1,10 @@
 package iacuc;
 
-import java.util.*;
-
+import edu.columbia.rascal.business.service.IacucProtocolHeaderService;
 import edu.columbia.rascal.business.service.review.iacuc.*;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.task.Task;
-
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import edu.columbia.rascal.business.service.*;
+import java.util.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:activiti/springUsageTest-context.xml")
@@ -50,7 +47,7 @@ public class MyBusinessProcessTest {
         completeTask(bizKey1, userId, IacucStatus.SOPreApproveA.taskDefKey(), IacucStatus.SOPreApproveA.statusName(), "foo");
         printOpenTaskList(bizKey1);
 
-        //completeTask(bizKey1, userId, IacucStatus.Rv1Approval.taskDefKey(), IacucStatus.Rv1Approval.statusName(), "foo bar");
+        completeTask(bizKey1, userId, IacucStatus.Rv1Approval.taskDefKey(), IacucStatus.Rv1Approval.statusName(), "foo bar");
 
         if (headerService.canRedistribute(bizKey1)) {
             completeTask(bizKey1, userId, IacucStatus.Redistribute.taskDefKey(), IacucStatus.Redistribute.statusName(), "redistribution now");
