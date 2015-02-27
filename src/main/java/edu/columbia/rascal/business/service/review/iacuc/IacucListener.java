@@ -9,8 +9,9 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Map;
-
+import java.util.Set;
 
 
 public class IacucListener implements TaskListener, ExecutionListener {
@@ -42,10 +43,33 @@ public class IacucListener implements TaskListener, ExecutionListener {
     private static final String CanRedistribute = "canRedistribute";
     private static final String Redistribute = "redistribute";
     private static final String UndoApproval = "undoApproval";
+
+    private static final Set<String> UndoApprovalSet = new HashSet<String>();
+
+    static {
+        UndoApprovalSet.add(IacucStatus.ReturnToPI.taskDefKey());
+        UndoApprovalSet.add(IacucStatus.UndoApproval.taskDefKey());
+        UndoApprovalSet.add(IacucStatus.FinalApproval.taskDefKey());
+    }
+
+    private static final Set<String> DesignateReviewerSet = new HashSet<String>();
+
+    static {
+        DesignateReviewerSet.add(IacucStatus.Rv1Hold.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv1ReqFullReview.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv2Hold.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv2ReqFullReview.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv3Hold.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv3ReqFullReview.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv4Hold.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv4ReqFullReview.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv5Hold.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv5ReqFullReview.taskDefKey());
+        DesignateReviewerSet.add(IacucStatus.Rv1Approval.taskDefKey());
+    }
+
     /**
      * Task listener will be called  by activity
-     *
-     * @param delegateTask
      */
     @Override
     public void notify(DelegateTask delegateTask) {
@@ -96,50 +120,18 @@ public class IacucListener implements TaskListener, ExecutionListener {
             taskExecution.setVariable(Redistribute, true);
         }
 
-        if (IacucStatus.ReturnToPI.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(UndoApproval, false);
-        }
-        if (IacucStatus.UndoApproval.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(UndoApproval, true);
-        }
-        if (IacucStatus.FinalApproval.isDefKey(taskDefKey)) {
+        if (UndoApprovalSet.contains(taskDefKey)) {
             taskExecution.setVariable(UndoApproval, false);
         }
 
         // for designated reviewers
-        if (IacucStatus.Rv1Hold.isDefKey(taskDefKey)) {
+        if (DesignateReviewerSet.contains(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
             taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv1ReqFullReview.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv2Hold.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv2ReqFullReview.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv3Hold.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv3ReqFullReview.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv4Hold.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv4ReqFullReview.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv5Hold.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv5ReqFullReview.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(AllRvs, false);
-            taskExecution.setVariable(CanRedistribute, false);
-        } else if (IacucStatus.Rv1Approval.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(CanRedistribute, false);
+        }
 
+        if (IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
+            taskExecution.setVariable(CanRedistribute, false);
         } else if (IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
             taskExecution.setVariable(CanRedistribute, false);
 
@@ -151,10 +143,6 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
         } else if (IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
             taskExecution.setVariable(CanRedistribute, false);
-
-        } else if (IacucStatus.Rv2Approval.isDefKey(taskDefKey)) {
-            taskExecution.setVariable(CanRedistribute, false);
-
         }
 
 
