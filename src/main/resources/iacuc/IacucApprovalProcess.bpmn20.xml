@@ -885,8 +885,12 @@
             <conditionExpression xsi:type="tFormalExpression"><![CDATA[${START_GATEWAY == 10}]]></conditionExpression>
         </sequenceFlow>
 
+        <receiveTask id="waitState" name="wait" />
 
-        <sequenceFlow sourceRef="submit" targetRef="TP"/>
+        <sequenceFlow sourceRef="submit" targetRef="waitState"/>
+
+        <sequenceFlow sourceRef="waitState" targetRef="TP"/>
+
         <sequenceFlow sourceRef="addCorrespondence" targetRef="thEnd"/>
         <sequenceFlow sourceRef="terminateProtocol" targetRef="thEnd"/>
         <sequenceFlow sourceRef="suspendProtocol" targetRef="thEnd"/>

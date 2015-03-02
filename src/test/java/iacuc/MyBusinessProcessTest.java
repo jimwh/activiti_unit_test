@@ -2,7 +2,10 @@ package iacuc;
 
 import edu.columbia.rascal.business.service.IacucProtocolHeaderService;
 import edu.columbia.rascal.business.service.review.iacuc.*;
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
@@ -17,6 +20,8 @@ import org.springframework.util.Assert;
 
 import java.util.*;
 
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:activiti/springUsageTest-context.xml")
 public class MyBusinessProcessTest {
@@ -25,6 +30,10 @@ public class MyBusinessProcessTest {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private RuntimeService runtimeService;
+
     @Autowired
     private IacucProtocolHeaderService headerService;
 
@@ -45,6 +54,16 @@ public class MyBusinessProcessTest {
         processInput.put("hasAppendix", true);
         headerService.startProtocolProcess(bizKey1, userId, processInput);
         printOpenTaskList(bizKey1);
+
+        String processInstanceId = headerService.getProcessInstanceId(bizKey1);
+
+        Execution execution = runtimeService.createExecutionQuery()
+                .processInstanceId(processInstanceId)
+                .activityId("waitState")
+                .singleResult();
+        assertNotNull(execution);
+
+        runtimeService.signal(execution.getId());
 
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");

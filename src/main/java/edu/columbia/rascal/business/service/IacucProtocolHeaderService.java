@@ -46,4 +46,9 @@ public class IacucProtocolHeaderService {
     public boolean canRedistribute(String bizKey) {
         return !processService.hasReviewerAction(bizKey);
     }
+
+
+    public String getProcessInstanceId(String bizKey) {
+        return processService.getCurrentProtocolProcessInstanceId(bizKey);
+    }
 }
