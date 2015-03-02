@@ -7,30 +7,24 @@ import java.util.List;
 public class IacucAdminForm {
 
     private String adminNote;
-
+    
     private List<String> reviewerList = new ArrayList<String>();
+
+    public List<String> getReviewerList() { return reviewerList; }
+
+    public void setReviewerList(List<String> list) { reviewerList = list; }
+
     private List<String> noActionReviewerList = new ArrayList<String>();
+
+    public List<String> getNoActionReviewerList() { return noActionReviewerList; }
+
+    public void setNoActionReviewerList(List<String> list) { noActionReviewerList = list; }
+
     private IacucCorrespondence correspondence;
+
     private Date approvalDate;
     private Date effectiveDate;
     private Date endDate;
-    private boolean validateEndDate = false;
-
-    public List<String> getReviewerList() {
-        return reviewerList;
-    }
-
-    public void setReviewerList(List<String> list) {
-        reviewerList = list;
-    }
-
-    public List<String> getNoActionReviewerList() {
-        return noActionReviewerList;
-    }
-
-    public void setNoActionReviewerList(List<String> list) {
-        noActionReviewerList = list;
-    }
 
     public String getAdminNote() {
         return adminNote;
@@ -64,13 +58,15 @@ public class IacucAdminForm {
         this.endDate = endDate;
     }
 
+    public void setCorrespondence(IacucCorrespondence correspondence) {
+        this.correspondence = correspondence;
+    }
+
     public IacucCorrespondence getCorrespondence() {
         return correspondence;
     }
 
-    public void setCorrespondence(IacucCorrespondence correspondence) {
-        this.correspondence = correspondence;
-    }
+    private boolean validateEndDate = false;
 
     public void setValidateEndDate(boolean bool) {
         this.validateEndDate = bool;

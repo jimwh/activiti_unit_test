@@ -49,8 +49,6 @@
 
     <bean id="iacucProcessService"
           class="edu.columbia.rascal.business.service.IacucProcessService"/>
-    <bean id="iacucProcessQueryService"
-          class="edu.columbia.rascal.business.service.IacucProcessQueryService"/>
 
     <bean id="iacucProtocolHeaderService"
           class="edu.columbia.rascal.business.service.IacucProtocolHeaderService"/>

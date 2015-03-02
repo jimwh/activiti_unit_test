@@ -1135,7 +1135,14 @@ public enum IacucStatus {
     };
 
 
+    private String codeName;
+
+    private IacucStatus(String s) {
+        this.codeName = s;
+    }
+
     private static final Set<String> KaputSet = new HashSet<String>();
+
     static {
         KaputSet.add("Release");
         KaputSet.add("UnRelease");
@@ -1178,12 +1185,6 @@ public enum IacucStatus {
         KaputSet.add("VetHoldC");
         KaputSet.add("VetHoldE");
         KaputSet.add("VetHoldF");
-    }
-
-    private String codeName;
-
-    private IacucStatus(String s) {
-        this.codeName = s;
     }
 
     public String statusName() {

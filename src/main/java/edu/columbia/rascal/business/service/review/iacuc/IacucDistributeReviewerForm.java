@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class IacucDistributeReviewerForm extends IacucTaskForm {
 
-    private static final Logger log = LoggerFactory.getLogger(IacucDistributeReviewerForm.class);
+    private static final Logger log= LoggerFactory.getLogger(IacucDistributeReviewerForm.class);
 
     @Override
     public Map<String, Object> getTaskVariables() {
@@ -29,8 +29,8 @@ public class IacucDistributeReviewerForm extends IacucTaskForm {
             map.put("rv"+suffix, rv);
         }
 
-        for (Map.Entry<String, Object> me : map.entrySet()) {
-            log.info("key={}, value={}", me.getKey(), me.getValue());
+        for(Map.Entry<String,Object>me: map.entrySet()) {
+            log.info("key={}, value={}", me.getKey(),me.getValue());
         }
         return map;
     }

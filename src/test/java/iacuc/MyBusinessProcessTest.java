@@ -3,7 +3,9 @@ package iacuc;
 import edu.columbia.rascal.business.service.IacucProtocolHeaderService;
 import edu.columbia.rascal.business.service.review.iacuc.*;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
+import org.activiti.engine.task.TaskQuery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -28,6 +31,8 @@ public class MyBusinessProcessTest {
     @Test
     // @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
     public void test() {
+        // if it doesn't have a valid taskId, getIdentityLinksForTask will throw an exception
+        // List<IdentityLink>list=taskService.getIdentityLinksForTask("123");
         testRedistribute();
     }
 
@@ -44,6 +49,7 @@ public class MyBusinessProcessTest {
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         distributeToDesignatedReviewer(bizKey1, "admin", rvList);
+
         completeTask(bizKey1, userId, IacucStatus.SOPreApproveA.taskDefKey(), IacucStatus.SOPreApproveA.statusName(), "foo");
         printOpenTaskList(bizKey1);
 

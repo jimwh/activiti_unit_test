@@ -1,10 +1,10 @@
 package edu.columbia.rascal.business.service.review.iacuc;
 
 
-import org.springframework.util.Assert;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.util.Assert;
 
 public class IacucDistributeSubcommitteeForm extends IacucTaskForm {
 
