@@ -9,7 +9,11 @@ import java.util.*;
 public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskForm> {
 
     private static final Logger log = LoggerFactory.getLogger(IacucTaskForm.class);
+
+    // all these lookup is for show business
     private static final Set<String>ReviewerTaskDefKeySet=new HashSet<String>();
+    private static final Set<String> AppendixTaskDefKeySet = new HashSet<String>();
+
     static {
     	ReviewerTaskDefKeySet.add(IacucStatus.Rv1Approval.taskDefKey());
     	ReviewerTaskDefKeySet.add(IacucStatus.Rv1Hold.taskDefKey());
@@ -26,7 +30,26 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     	ReviewerTaskDefKeySet.add(IacucStatus.Rv5Approval.taskDefKey());
     	ReviewerTaskDefKeySet.add(IacucStatus.Rv5Hold.taskDefKey());
     	ReviewerTaskDefKeySet.add(IacucStatus.Rv5ReqFullReview.taskDefKey());
-    };
+    }
+
+    static {
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveA.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveB.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveC.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveD.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveE.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveF.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveG.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOPreApproveI.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldA.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldB.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldC.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldD.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldE.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldF.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldG.taskDefKey());
+        AppendixTaskDefKeySet.add(IacucStatus.SOHoldI.taskDefKey());
+    }
     
     private String bizKey;
     private String author;
@@ -40,6 +63,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     private IacucCorrespondence iacucCorrespondence;
     private List<String> reviewerList = new ArrayList<String>();
     private Date date;
+    private boolean showNormalUser;
 
     public List<String> getReviewerList() {
         return reviewerList;
@@ -57,10 +81,11 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         this.bizKey = bizKey;
     }
 
+    public Date getEndTime() { return this.endTime; }
+
     public void setEndTime(Date date) {
         this.endTime = date;
     }
-    public Date getEndTime() { return this.endTime; }
 
     public String getAuthor() {
         return author;
@@ -110,14 +135,13 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         this.snapshotId = snapshotId;
     }
 
-    public void setCorrespondence(IacucCorrespondence corr) {
-        this.iacucCorrespondence = corr;
-    }
-
     public IacucCorrespondence getCorrespondence() {
         return this.iacucCorrespondence;
     }
 
+    public void setCorrespondence(IacucCorrespondence corr) {
+        this.iacucCorrespondence = corr;
+    }
 
     public Date getDate() {
         return this.date;
@@ -128,6 +152,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
     }
 
     public String getCommentId() { return this.commentId; }
+
     public void setCommentId(String cid) { this.commentId=cid; }
 
     public String getMeetingDateString() {
@@ -204,7 +229,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         sb.append("[taskName=").append(taskName)
                 .append(",taskDefKey=").append(taskDefKey).append(",snapshotId=").append(snapshotId).append(",bizKey=").append(bizKey)
                 .append(",author=").append(author);
-        
+
         if (comment != null) {
             sb.append(",comment=").append(comment);
         }
@@ -230,8 +255,7 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
 
         return this.endTime.compareTo(itf.getEndTime());
     }
-    
-    private boolean showNormalUser;
+
     public boolean getShowNormalUser() { return showNormalUser; }
     public void setShowNormalUser(boolean bool) { showNormalUser=bool; }
     
@@ -273,5 +297,49 @@ public class IacucTaskForm implements IacucTaskFormBase, Comparable<IacucTaskFor
         else if (getIsDesignatedReview()) return false;
         else if (getIsAddCorrespondence()) return false;
         return true;
+    }
+
+
+    // all for show business
+
+    public String getAppendixTypeAuthoritySuffix() {
+
+        if (IacucStatus.SOPreApproveA.isDefKey(taskDefKey)) {
+            return "APPROVE_A";
+        } else if (IacucStatus.SOPreApproveB.isDefKey(taskDefKey)) {
+            return "APPROVE_B";
+        } else if (IacucStatus.SOPreApproveC.isDefKey(taskDefKey)) {
+            return "APPROVE_C";
+        } else if (IacucStatus.SOPreApproveD.isDefKey(taskDefKey)) {
+            return "APPROVE_D";
+        } else if (IacucStatus.SOPreApproveE.isDefKey(taskDefKey)) {
+            return "APPROVE_E";
+        } else if (IacucStatus.SOPreApproveF.isDefKey(taskDefKey)) {
+            return "APPROVE_F";
+        } else if (IacucStatus.SOPreApproveG.isDefKey(taskDefKey)) {
+            return "APPROVE_G";
+        } else if (IacucStatus.SOPreApproveI.isDefKey(taskDefKey)) {
+            return "APPROVE_I";
+        } else if (IacucStatus.SOHoldA.isDefKey(taskDefKey)) {
+            return "HOLD_A";
+        } else if (IacucStatus.SOHoldB.isDefKey(taskDefKey)) {
+            return "HOLD_B";
+        } else if (IacucStatus.SOHoldC.isDefKey(taskDefKey)) {
+            return "HOLD_C";
+        } else if (IacucStatus.SOHoldD.isDefKey(taskDefKey)) {
+            return "HOLD_D";
+        } else if (IacucStatus.SOHoldE.isDefKey(taskDefKey)) {
+            return "HOLD_E";
+        } else if (IacucStatus.SOHoldF.isDefKey(taskDefKey)) {
+            return "HOLD_F";
+        } else if (IacucStatus.SOHoldG.isDefKey(taskDefKey)) {
+            return "HOLD_G";
+        } else if (IacucStatus.SOHoldI.isDefKey(taskDefKey)) {
+            return "HOLD_I";
+        } else return null;
+    }
+
+    public boolean getIsAppendixTask() {
+        return AppendixTaskDefKeySet.contains(taskDefKey);
     }
 }

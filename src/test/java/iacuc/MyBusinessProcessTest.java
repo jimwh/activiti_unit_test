@@ -2,13 +2,12 @@ package iacuc;
 
 import edu.columbia.rascal.business.service.IacucProtocolHeaderService;
 import edu.columbia.rascal.business.service.review.iacuc.*;
+import org.activiti.engine.ManagementService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
-import org.activiti.engine.runtime.Execution;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.IdentityLink;
+import org.activiti.engine.runtime.Job;
 import org.activiti.engine.task.Task;
-import org.activiti.engine.task.TaskQuery;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -16,11 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
 
 import java.util.*;
-
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:activiti/springUsageTest-context.xml")
@@ -33,6 +29,9 @@ public class MyBusinessProcessTest {
 
     @Autowired
     private RuntimeService runtimeService;
+
+    @Autowired
+    private ManagementService managementService;
 
     @Autowired
     private IacucProtocolHeaderService headerService;
@@ -57,14 +56,6 @@ public class MyBusinessProcessTest {
 
         String processInstanceId = headerService.getProcessInstanceId(bizKey1);
 
-        Execution execution = runtimeService.createExecutionQuery()
-                .processInstanceId(processInstanceId)
-                .activityId("waitState")
-                .singleResult();
-        assertNotNull(execution);
-
-        runtimeService.signal(execution.getId());
-
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         distributeToDesignatedReviewer(bizKey1, "admin", rvList);
@@ -76,11 +67,45 @@ public class MyBusinessProcessTest {
 
         if (headerService.canRedistribute(bizKey1)) {
             completeTask(bizKey1, userId, IacucStatus.Redistribute.taskDefKey(), IacucStatus.Redistribute.statusName(), "redistribution now");
+        } else {
+            finalApproval(bizKey1, userId);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+            }
+
+
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("remindDate", new Date());
+            map.put("START_GATEWAY", Reminder.Day30.gatewayValue());
+            headerService.startReminderProcess(bizKey1, userId, map, Reminder.Day30);
+
+            //
+            //Assert.assertTrue(hasTask(bizKey, Reminder.Day30.taskDefKey()));
+
+            //
+
+            List<Job> timerList = managementService
+                    .createJobQuery()
+                    .processInstanceId(headerService.getReminderInstanceId(bizKey1, Reminder.Day30))
+                    .list();
+            Assert.assertNotNull(timerList);
+            Job job = timerList.get(0);
+            log.info("due date: {}", job.getDuedate());
+            // managementService.executeJob(timerList.get(0).getId());
+            // have to give some time for unit testing
+
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+            }
+
+
+
         }
 
         printOpenTaskList(bizKey1);
-        returnToPI(bizKey1, "admin");
-
+        printHistory(bizKey1);
     }
 
 
@@ -96,7 +121,6 @@ public class MyBusinessProcessTest {
         //approveAppendixA(bizKey, "safetyOfficeDam");
         //holdAppendixB(bizKey, "safetyOfficeHolder");
         //subcommitteeReview(bizKey, "admin");
-        returnToPI(bizKey, "admin");
         log.info("taskCount={}", taskCount(bizKey));
         log.info("after return to PI open tasks:");
         printOpenTaskList(bizKey);
@@ -136,23 +160,6 @@ public class MyBusinessProcessTest {
         }
     }
 
-    void returnToPI(String bizKey, String user) {
-        IacucTaskForm iacucTaskForm = new IacucTaskForm();
-        iacucTaskForm.setBizKey(bizKey);
-        iacucTaskForm.setAuthor(user);
-        iacucTaskForm.setComment("no choice but back to PI...");
-        iacucTaskForm.setTaskName(IacucStatus.ReturnToPI.statusName());
-        iacucTaskForm.setTaskDefKey(IacucStatus.ReturnToPI.taskDefKey());
-        IacucCorrespondence corr1 = new IacucCorrespondence();
-        corr1.setFrom(user);
-        corr1.setRecipient("PI");
-        corr1.setCarbonCopy("Co-PI");
-        corr1.setSubject("Notification of Return to PI from David");
-        corr1.setText("Question about your protocol bla bla ...");
-        corr1.apply();
-        iacucTaskForm.setCorrespondence(corr1);
-        headerService.completeTaskByTaskForm(iacucTaskForm);
-    }
 
     void distToSubcommittee(String bizKey, String user) {
         IacucDistributeSubcommitteeForm iacucTaskForm = new IacucDistributeSubcommitteeForm();
@@ -226,18 +233,6 @@ public class MyBusinessProcessTest {
             log.info(form.toString());
         }
     }
-
-    /*
-        void printCurrentApprovalStatus(String bizKey) {
-            log.info("...............................................................\n");
-            log.info("get all tasks from current process including open/closed tasks...");
-            List<IacucTaskForm> list = getCurrentApprovalStatus(bizKey);
-            for (IacucTaskForm form : list) {
-                log.info(form.toString());
-            }
-            log.info("...............................................................\n");
-        }
-    */
 
     private void completeTask(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
         IacucTaskForm taskForm = new IacucTaskForm();

@@ -5,15 +5,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@SuppressWarnings("StringBufferReplaceableByString")
 public class IacucCorrespondence {
 
+    private static final Logger log = LoggerFactory.getLogger(IacucCorrespondence.class);
     private String id;
     private String from;
     private String recipient;
@@ -21,10 +18,9 @@ public class IacucCorrespondence {
     private String subject;
     private String text;
     private Date creationDate;
-
     private String fromFirstLastNameUni;
-
-    private static final Logger log = LoggerFactory.getLogger(IacucCorrespondence.class);
+    // just for front show purpose
+    private boolean showCorrToUser = false;
 
     public String getId() {
         return id;
@@ -34,22 +30,24 @@ public class IacucCorrespondence {
         return from;
     }
 
-    public boolean isValidFrom() {return !StringUtils.isBlank(this.from);}
-
     public void setFrom(String fromUni) {
         this.from = fromUni;
+    }
+
+    public boolean isValidFrom() {
+        return !StringUtils.isBlank(this.from);
     }
 
     public String getSubject() {
         return subject;
     }
 
-    public boolean isValidSubject() {
-        return !StringUtils.isBlank(this.subject);
-    }
-
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public boolean isValidSubject() {
+        return !StringUtils.isBlank(this.subject);
     }
 
     public String getText() {
@@ -71,12 +69,12 @@ public class IacucCorrespondence {
         }
     }
 
-    public void setFromFirstLastNameUni(String flu) {
-        fromFirstLastNameUni = flu;
-    }
-
     public String getFromFirstLastNameUni() {
         return fromFirstLastNameUni;
+    }
+
+    public void setFromFirstLastNameUni(String flu) {
+        fromFirstLastNameUni = flu;
     }
 
     // it is for activity use, not for you
@@ -91,13 +89,13 @@ public class IacucCorrespondence {
         return recipient;
     }
 
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
+    }
+
     public boolean isValidRecipient() {
         List<String> list = getRecipientAsList();
         return !list.isEmpty();
-    }
-
-    public void setRecipient(String recipient) {
-        this.recipient = recipient;
     }
 
     public List<String> getRecipientAsList() {
@@ -141,7 +139,7 @@ public class IacucCorrespondence {
         Map<String, String> map = new HashMap<String, String>();
         if (StringUtils.isBlank(id)) {
             apply();
-        } 
+        }
         if (StringUtils.isBlank(from)) {
         	log.error("empty from uni");
             return map;
@@ -154,7 +152,7 @@ public class IacucCorrespondence {
         } else if (StringUtils.isBlank(text)) {
         	log.error("empty text");
             return map;
-        } 
+        }
 
         map.put("id", id);
         map.put("from", from);
@@ -218,9 +216,6 @@ public class IacucCorrespondence {
         DateTime dateTime = new DateTime(creationDate);
         return dateTime.toString("MM/dd/yyyy HH:mm:ss");
     }
-
-    // just for front show purpose
-    private boolean showCorrToUser = false;
 
     public boolean getShowCorrToUser() {
         return showCorrToUser;

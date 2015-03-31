@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<definitions
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:activiti="http://activiti.org/bpmn"
+        xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+        typeLanguage="http://www.w3.org/2001/XMLSchema"
+        expressionLanguage="http://www.w3.org/1999/XPath"
+        targetNamespace="expiration-reminder">
+
+    <error id="reminderError" errorCode="ReminderException"/>
+
+    <process id="IacucExpirationReminder" name="Reminder">
+
+        <startEvent id="theStart" name="Start"/>
+
+        <!-- 90 day reminder -->
+        <transaction id="D90T">
+
+            <userTask id="cancelReminder90" name="Cancel 90-Day Reminder"/>
+
+            <intermediateCatchEvent id="timer90">
+                <timerEventDefinition>
+                    <timeDate>${remindDate}</timeDate>
+                </timerEventDefinition>
+            </intermediateCatchEvent>
+
+            <serviceTask id="reminder90" name="90-Day Reminder"
+                         activiti:expression="#{iacucListener.expirationReminder(execution)}"/>
+
+            <startEvent id="start90"/>
+            <parallelGateway id="fork90"/>
+            <sequenceFlow sourceRef="start90" targetRef="fork90"/>
+
+            <sequenceFlow sourceRef="fork90" targetRef="timer90"/>
+            <sequenceFlow sourceRef="fork90" targetRef="cancelReminder90"/>
+            <sequenceFlow sourceRef="timer90" targetRef="reminder90"/>
+
+            <exclusiveGateway id="join90"/>
+            <sequenceFlow sourceRef="cancelReminder90" targetRef="join90"/>
+            <sequenceFlow sourceRef="reminder90" targetRef="join90"/>
+            <endEvent id="end90">
+                <cancelEventDefinition/>
+            </endEvent>
+
+            <sequenceFlow sourceRef="join90" targetRef="end90"/>
+
+        </transaction>
+        <boundaryEvent id="cancel90" attachedToRef="D90T">
+            <cancelEventDefinition/>
+        </boundaryEvent>
+
+
+        <transaction id="D60T">
+
+            <userTask id="cancelReminder60" name="Cancel 60 Day Reminder"/>
+
+            <intermediateCatchEvent id="timer60">
+                <timerEventDefinition>
+                    <timeDate>${remindDate}</timeDate>
+                </timerEventDefinition>
+            </intermediateCatchEvent>
+
+            <serviceTask id="reminder60" name="60-Day Reminder"
+                         activiti:expression="#{iacucListener.expirationReminder(execution)}"/>
+
+            <startEvent id="start60"/>
+            <parallelGateway id="fork60"/>
+            <sequenceFlow sourceRef="start60" targetRef="fork60"/>
+
+            <sequenceFlow sourceRef="fork60" targetRef="timer60"/>
+            <sequenceFlow sourceRef="fork60" targetRef="cancelReminder60"/>
+            <sequenceFlow sourceRef="timer60" targetRef="reminder60"/>
+
+            <exclusiveGateway id="join60"/>
+            <sequenceFlow sourceRef="cancelReminder60" targetRef="join60"/>
+            <sequenceFlow sourceRef="reminder60" targetRef="join60"/>
+            <endEvent id="end60">
+                <cancelEventDefinition/>
+            </endEvent>
+
+            <sequenceFlow sourceRef="join60" targetRef="end60"/>
+
+        </transaction>
+        <boundaryEvent id="cancel60" attachedToRef="D60T">
+            <cancelEventDefinition/>
+        </boundaryEvent>
+
+        <transaction id="D30T">
+
+            <userTask id="cancelReminder30" name="Cancel 30-Day Reminder"/>
+
+            <intermediateCatchEvent id="timer30">
+                <timerEventDefinition>
+                    <timeDate>${remindDate}</timeDate>
+                </timerEventDefinition>
+            </intermediateCatchEvent>
+
+            <serviceTask id="reminder30" name="30-Day Reminder"
+                         activiti:expression="#{iacucListener.expirationReminder(execution)}"/>
+
+            <startEvent id="start30"/>
+            <parallelGateway id="fork30"/>
+            <sequenceFlow sourceRef="start30" targetRef="fork30"/>
+
+            <sequenceFlow sourceRef="fork30" targetRef="timer30"/>
+            <sequenceFlow sourceRef="fork30" targetRef="cancelReminder30"/>
+            <sequenceFlow sourceRef="timer30" targetRef="reminder30"/>
+
+            <exclusiveGateway id="join30"/>
+            <sequenceFlow sourceRef="cancelReminder30" targetRef="join30"/>
+            <sequenceFlow sourceRef="reminder30" targetRef="join30"/>
+            <endEvent id="end30">
+                <cancelEventDefinition/>
+            </endEvent>
+
+            <sequenceFlow sourceRef="join30" targetRef="end30"/>
+
+        </transaction>
+        <boundaryEvent id="cancel30" attachedToRef="D30T">
+            <cancelEventDefinition/>
+        </boundaryEvent>
+
+
+        <boundaryEvent id="catchError90" attachedToRef="D90T">
+            <errorEventDefinition errorRef="reminderError"/>
+        </boundaryEvent>
+        <sequenceFlow sourceRef="catchError90" targetRef="theEnd"/>
+
+        <boundaryEvent id="catchError60" attachedToRef="D60T">
+            <errorEventDefinition errorRef="reminderError"/>
+        </boundaryEvent>
+        <sequenceFlow sourceRef="catchError60" targetRef="theEnd"/>
+
+        <boundaryEvent id="catchError30" attachedToRef="D30T">
+            <errorEventDefinition errorRef="reminderError"/>
+        </boundaryEvent>
+        <sequenceFlow sourceRef="catchError30" targetRef="theEnd"/>
+
+        <exclusiveGateway id="startGateway"/>
+        <sequenceFlow sourceRef="theStart" targetRef="startGateway"/>
+
+        <sequenceFlow sourceRef="startGateway" targetRef="D90T">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${START_GATEWAY == 90}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow sourceRef="startGateway" targetRef="D60T">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${START_GATEWAY == 60}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow sourceRef="startGateway" targetRef="D30T">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${START_GATEWAY == 30}]]></conditionExpression>
+        </sequenceFlow>
+
+        <sequenceFlow sourceRef="D90T" targetRef="theEnd"/>
+        <sequenceFlow sourceRef="D60T" targetRef="theEnd"/>
+        <sequenceFlow sourceRef="D30T" targetRef="theEnd"/>
+
+        <!--
+        <sequenceFlow sourceRef="D30T" targetRef="waitState"/>
+        <receiveTask id="waitState" name="wait" />
+        <sequenceFlow sourceRef="waitState" targetRef="theEnd"/>
+        -->
+        <endEvent id="theEnd"/>
+
+    </process>
+
+</definitions>
