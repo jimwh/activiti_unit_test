@@ -53,9 +53,7 @@ public class MyBusinessProcessTest {
         processInput.put("hasAppendix", true);
         headerService.startProtocolProcess(bizKey1, userId, processInput);
         printOpenTaskList(bizKey1);
-
-        String processInstanceId = headerService.getProcessInstanceId(bizKey1);
-
+        //
         List<String> rvList = new ArrayList<String>();
         rvList.add("Sam");
         distributeToDesignatedReviewer(bizKey1, "admin", rvList);
@@ -80,10 +78,6 @@ public class MyBusinessProcessTest {
             map.put("START_GATEWAY", Reminder.Day30.gatewayValue());
             headerService.startReminderProcess(bizKey1, userId, map, Reminder.Day30);
 
-            //
-            //Assert.assertTrue(hasTask(bizKey, Reminder.Day30.taskDefKey()));
-
-            //
 
             List<Job> timerList = managementService
                     .createJobQuery()
@@ -99,9 +93,6 @@ public class MyBusinessProcessTest {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
             }
-
-
-
         }
 
         printOpenTaskList(bizKey1);
@@ -228,6 +219,7 @@ public class MyBusinessProcessTest {
     }
 
     void printHistory(String bizKey) {
+        log.info("history:");
         List<IacucTaskForm> iacucTaskFormList = headerService.getIacucProtocolHistory(bizKey);
         for (IacucTaskForm form : iacucTaskFormList) {
             log.info(form.toString());

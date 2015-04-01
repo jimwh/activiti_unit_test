@@ -579,7 +579,7 @@ class IacucProcessService {
                 .singleResult();
     }
 
-    private ProcessInstance getProcessInstanceByDefKeyAndName(
+    private ProcessInstance getProcessInstanceByProcessDefKeyAndName(
             String bizKey, String defKey, String instanceName) {
         return runtimeService
                 .createProcessInstanceQuery()
@@ -599,11 +599,11 @@ class IacucProcessService {
                 .singleResult();
     }
 
-    private String getHistoriceProcessInstanceIdByDefKeyAndName(
-            String bizKey, String defKey, String instanceName) {
+    private String getHistoricProcessInstanceId(
+            String bizKey, String processDefKey, String instanceName) {
         HistoricProcessInstance hs = historyService
                 .createHistoricProcessInstanceQuery()
-                .processDefinitionKey(defKey)
+                .processDefinitionKey(processDefKey)
                 .processInstanceBusinessKey(bizKey)
                 .processInstanceName(instanceName)
                 .singleResult();
@@ -934,97 +934,56 @@ class IacucProcessService {
     private List<IacucTaskForm> getReminderHistory(String bizKey) {
 
         List<IacucTaskForm> list = new ArrayList<IacucTaskForm>();
+        List<IacucTaskForm> reminder90History=getReminderServiceHistory(bizKey, Reminder.Day90);
+        if( !reminder90History.isEmpty() ) {
+            list.addAll(reminder90History);
+        }
+        List<IacucTaskForm> reminder60History=getReminderServiceHistory(bizKey, Reminder.Day60);
+        if( !reminder60History.isEmpty() ) {
+            list.addAll(reminder60History);
+        }
+        List<IacucTaskForm> reminder30History=getReminderServiceHistory(bizKey, Reminder.Day30);
+        if( !reminder30History.isEmpty() ) {
+            list.addAll(reminder30History);
+        }
+        return list;
+    }
 
-        String reminder30InstanceId = getHistoriceProcessInstanceIdByDefKeyAndName(
-                bizKey, ReminderProcessDefKey, Reminder.Day30.name());
 
-        HistoricActivityInstance hai30 = historyService.createHistoricActivityInstanceQuery()
-                .activityId(Reminder.Day30.serviceTaskId())
-                .processInstanceId(reminder30InstanceId)
+
+    private List<IacucTaskForm> getReminderServiceHistory(String bizKey, Reminder reminder) {
+
+        List<IacucTaskForm> list = new ArrayList<IacucTaskForm>();
+
+        String reminderInstanceId = getHistoricProcessInstanceId(
+                bizKey, ReminderProcessDefKey, reminder.name());
+
+        HistoricActivityInstance hai = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(reminderInstanceId)
+                .activityId(reminder.serviceTaskId())
                 .finished()
                 .singleResult();
-        if (hai30 != null) {
+        if (hai != null) {
             IacucTaskForm form = new IacucTaskForm();
             form.setBizKey(bizKey);
-            form.setTaskName(hai30.getActivityName());
-            form.setDate(hai30.getStartTime());
-            form.setEndTime(hai30.getEndTime());
-            form.setTaskDefKey(hai30.getActivityId());
+            form.setTaskName(hai.getActivityName());
+            form.setDate(hai.getStartTime());
+            form.setEndTime(hai.getEndTime());
+            form.setTaskDefKey(hai.getActivityId());
             form.setAuthor("system");
             list.add(form);
         }
 
-        HistoricActivityInstance err30 = historyService.createHistoricActivityInstanceQuery()
-                .activityId(Reminder.Day30.catchErrorId())
-                .processInstanceId(reminder30InstanceId)
+        HistoricActivityInstance catchErr = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(reminderInstanceId)
+                .activityId(reminder.catchErrorId())
                 .finished()
                 .singleResult();
-        if (err30 != null) {
+        if (catchErr != null) {
             IacucTaskForm form = new IacucTaskForm();
-            form.setTaskName(err30.getActivityName());
-            form.setDate(err30.getEndTime());
-            form.setTaskDefKey(err30.getActivityId());
-            form.setAuthor("system");
-            list.add(form);
-        }
-
-        String reminder60InstanceId = getHistoriceProcessInstanceIdByDefKeyAndName(
-                bizKey, ReminderProcessDefKey, Reminder.Day60.name());
-        HistoricActivityInstance hai60 = historyService.createHistoricActivityInstanceQuery()
-                .activityId(Reminder.Day60.serviceTaskId())
-                .processInstanceId(reminder60InstanceId)
-                .finished()
-                .singleResult();
-        if (hai60 != null) {
-            IacucTaskForm form = new IacucTaskForm();
-            form.setTaskName(hai60.getActivityName());
-            form.setDate(hai60.getEndTime());
-            form.setTaskDefKey(hai60.getActivityId());
-            form.setAuthor("system");
-            list.add(form);
-        }
-        HistoricActivityInstance err60 = historyService.createHistoricActivityInstanceQuery()
-                .activityId(Reminder.Day60.catchErrorId())
-                .processInstanceId(reminder60InstanceId)
-                .finished()
-                .singleResult();
-        if (err60 != null) {
-            IacucTaskForm form = new IacucTaskForm();
-            form.setTaskName(err60.getActivityName());
-            form.setDate(err60.getEndTime());
-            form.setTaskDefKey(err60.getActivityId());
-            form.setAuthor("system");
-            list.add(form);
-        }
-
-
-        String reminder90InstanceId = getHistoriceProcessInstanceIdByDefKeyAndName(
-                bizKey, ReminderProcessDefKey, Reminder.Day90.name());
-        HistoricActivityInstance hai90 = historyService.createHistoricActivityInstanceQuery()
-                .activityId(Reminder.Day90.serviceTaskId())
-                .processInstanceId(reminder90InstanceId)
-                .finished()
-                .singleResult();
-        if (hai90 != null) {
-            IacucTaskForm form = new IacucTaskForm();
-            form.setTaskName(hai90.getActivityName());
-            form.setDate(hai90.getEndTime());
-            form.setTaskDefKey(hai90.getActivityId());
-            form.setAuthor("system");
-            list.add(form);
-        }
-        //
-
-        HistoricActivityInstance err90 = historyService.createHistoricActivityInstanceQuery()
-                .activityId(Reminder.Day90.catchErrorId())
-                .processInstanceId(reminder90InstanceId)
-                .finished()
-                .singleResult();
-        if (err90 != null) {
-            IacucTaskForm form = new IacucTaskForm();
-            form.setTaskName(err90.getActivityName());
-            form.setDate(err90.getEndTime());
-            form.setTaskDefKey(err90.getActivityId());
+            form.setTaskName(catchErr.getActivityName());
+            form.setDate(catchErr.getEndTime());
+            form.setTaskDefKey(catchErr.getActivityId());
             form.setAuthor("system");
             list.add(form);
         }
@@ -1230,7 +1189,7 @@ class IacucProcessService {
     }
 
     String reminderInstanceId(String bizKey, Reminder reminder) {
-        ProcessInstance instance = getProcessInstanceByDefKeyAndName(bizKey, ReminderProcessDefKey, reminder.name());
+        ProcessInstance instance = getProcessInstanceByProcessDefKeyAndName(bizKey, ReminderProcessDefKey, reminder.name());
         return instance == null ? null : instance.getId();
     }
 }
