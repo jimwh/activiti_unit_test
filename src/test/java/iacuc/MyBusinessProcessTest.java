@@ -18,6 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.*;
 
+import static junit.framework.TestCase.assertNull;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:activiti/springUsageTest-context.xml")
 public class MyBusinessProcessTest {
@@ -53,6 +55,18 @@ public class MyBusinessProcessTest {
         processInput.put("kaputCount", 3);
         headerService.startKaputProcess(bizKey, userId, processInput);
         printOpenTaskList(bizKey);
+        completeTask(bizKey, userId, IacucStatus.Kaput.taskDefKey(),
+                IacucStatus.Kaput.statusName(), "foo1");
+
+        completeTask(bizKey, userId, IacucStatus.Kaput.taskDefKey(),
+                IacucStatus.Kaput.statusName(), "foo2");
+
+        completeTask(bizKey, userId, IacucStatus.Kaput.taskDefKey(),
+                IacucStatus.Kaput.statusName(), "foo3");
+
+        printOpenTaskList(bizKey);
+        printHistory(bizKey);
+        assertNull(headerService.getKaputProcessInstanceId(bizKey));
     }
 
     void testRedistribute() {

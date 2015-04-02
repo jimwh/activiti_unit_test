@@ -67,6 +67,10 @@ public class IacucProtocolHeaderService {
         return processService.getCurrentProtocolProcessInstanceId(bizKey);
     }
 
+    public String getKaputProcessInstanceId(String bizKey) {
+        return processService.getCurrentKaputProcessInstanceId(bizKey);
+    }
+
     public void attachSnapshot(String bizKey, String taskDefKey) {
 
     }

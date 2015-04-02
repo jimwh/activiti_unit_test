@@ -150,7 +150,7 @@ class IacucProcessService {
         processInput.put(START_GATEWAY, IacucStatus.Kaput.gatewayValue());
         ProcessInstance instance = runtimeService.startProcessInstanceByKey(ProtocolProcessDefKey, protocolId, processInput);
         identityService.setAuthenticatedUserId(userId);
-        runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), IacucStatus.Submit.name());
+        runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), IacucStatus.Kaput.name());
         log.info("protocolId={}, activityId={}, processId={}", protocolId, instance.getActivityId(), instance.getId());
         return instance.getProcessInstanceId();
     }
@@ -847,10 +847,11 @@ class IacucProcessService {
 
 
     private Task getTask(String processDefKey, String bizKey, String taskDefKey) {
-        return taskService.createTaskQuery()
+        List<Task> list = taskService.createTaskQuery()
                 .processDefinitionKey(processDefKey)
                 .processInstanceBusinessKey(bizKey)
-                .taskDefinitionKey(taskDefKey).singleResult();
+                .taskDefinitionKey(taskDefKey).list(); //.singleResult();
+        return list.isEmpty() ? null : list.get(0);
     }
 
 
@@ -1051,6 +1052,10 @@ class IacucProcessService {
         return instance != null ? instance.getProcessInstanceId() : null;
     }
 
+    String getCurrentKaputProcessInstanceId(String bizKey) {
+        ProcessInstance instance = getProtocolProcessInstance(bizKey, IacucStatus.Kaput.name());
+        return instance != null ? instance.getProcessInstanceId() : null;
+    }
 
     List<Task> getOpenTasksByBizKeyAndCandidateGroup(String bizKey, String userId, List<String> candidateGroup) {
         Assert.notNull(bizKey, "undefined bizKey");
