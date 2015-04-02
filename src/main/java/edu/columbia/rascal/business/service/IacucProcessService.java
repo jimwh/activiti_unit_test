@@ -139,6 +139,23 @@ class IacucProcessService {
     }
 
     @Transactional
+    String startKaputProcess(String protocolId, String userId, Map<String, Object> processInput) {
+        Assert.notNull(processInput);
+        /*
+        if (isProtocolProcessStarted(protocolId)) {
+            log.warn("Process was already started for protocolId=" + protocolId);
+            return false;
+        }
+        */
+        processInput.put(START_GATEWAY, IacucStatus.Kaput.gatewayValue());
+        ProcessInstance instance = runtimeService.startProcessInstanceByKey(ProtocolProcessDefKey, protocolId, processInput);
+        identityService.setAuthenticatedUserId(userId);
+        runtimeService.setProcessInstanceName(instance.getProcessInstanceId(), IacucStatus.Submit.name());
+        log.info("protocolId={}, activityId={}, processId={}", protocolId, instance.getActivityId(), instance.getId());
+        return instance.getProcessInstanceId();
+    }
+
+    @Transactional
     ProcessInstance startReminderProcess(String protocolId, String userId,
                                          Map<String, Object> processInput,
                                          Reminder reminder) {

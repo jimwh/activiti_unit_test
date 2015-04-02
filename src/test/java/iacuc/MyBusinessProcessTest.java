@@ -41,10 +41,21 @@ public class MyBusinessProcessTest {
     public void test() {
         // if it doesn't have a valid taskId, getIdentityLinksForTask will throw an exception
         // List<IdentityLink>list=taskService.getIdentityLinksForTask("123");
-        testRedistribute();
+        // testRedistribute();
+        testKaput();
     }
 
-    public void testRedistribute() {
+    void testKaput() {
+        String bizKey = "testKaput";
+        String userId = "BobKaput";
+        Map<String, Object> processInput = new HashMap<String, Object>();
+        processInput.put("START_GATEWAY", IacucStatus.Kaput.gatewayValue());
+        processInput.put("kaputCount", 3);
+        headerService.startKaputProcess(bizKey, userId, processInput);
+        printOpenTaskList(bizKey);
+    }
+
+    void testRedistribute() {
 
         String bizKey1 = "foo";
         String userId = "bob";

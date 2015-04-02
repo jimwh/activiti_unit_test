@@ -47,6 +47,11 @@ public class IacucProtocolHeaderService {
         processService.completeTaskByTaskForm(IacucProcessService.ProtocolProcessDefKey, taskForm);
     }
 
+    public String startKaputProcess(String protocolId, String userId, Map<String, Object> processInput) {
+        return processService.startKaputProcess(protocolId, userId, processInput);
+    }
+
+
     public void startReminderProcess(String bizKey, String userId,
                                      Map<String, Object> processInput,
                                      Reminder reminder) {
