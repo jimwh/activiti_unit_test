@@ -232,7 +232,7 @@ class IacucProcessService {
 
     private String attachSnapshot(String attachmentType, String taskId, String procId,
                                   String attachmentName, String description, InputStream content) {
-        Attachment attachment = taskService.createAttachment(attachmentType,
+        final Attachment attachment = taskService.createAttachment(attachmentType,
                 taskId,
                 procId,
                 attachmentName,
@@ -252,7 +252,7 @@ class IacucProcessService {
 
     InputStream getSnapshotContent(String attachmentId) {
         Attachment attachment = taskService.getAttachment(attachmentId);
-        return (attachment != null) ? taskService.getAttachmentContent(attachmentId) : null;
+        return attachment != null ? taskService.getAttachmentContent(attachmentId) : null;
     }
 
     IacucTaskForm getPreviousApprovedData(String protocolId) {
@@ -809,10 +809,10 @@ class IacucProcessService {
         }
 
         // for show business
-        if (IacucStatus.DistributeSubcommittee.isDefKey(taskDefKey)) {
-            if (iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
+        if (IacucStatus.DistributeSubcommittee.isDefKey(taskDefKey)
+                &&
+            iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
                 taskService.setVariable(taskId, "meetingDate", iacucTaskForm.getDate());
-            }
         }
 
         // determine the direction
@@ -1179,7 +1179,7 @@ class IacucProcessService {
                 .processDefinitionKey(IacucProcessService.ProtocolProcessDefKey)
                 .processInstanceBusinessKey(bizKey)
                 .taskDefinitionKey(taskDefKey).list();
-        return (list == null || list.isEmpty()) ? null : list.get(0);
+        return list == null || list.isEmpty() ? null : list.get(0);
     }
 
     Map<String, Set<String>> getBizKeyAndReviewer() {
