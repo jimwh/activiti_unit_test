@@ -41,10 +41,15 @@ public class MyBusinessProcessTest {
     @Test
     // @Deployment(resources = {"org/activiti/test/IacucApprovalProcess.bpmn20.xml"})
     public void test() {
+
+        // log.info("isIacuc={}", AuthMatcher.foo.matchIacucAuthority("IACUC_FOO_BAR"));
+        // log.info("isIacuc={}", IacucAuthMatcher.matchIacucAuthority("IACUC_FOO_FOOBAR"));
         // if it doesn't have a valid taskId, getIdentityLinksForTask will throw an exception
         // List<IdentityLink>list=taskService.getIdentityLinksForTask("123");
         // testRedistribute();
-        testKaput();
+        // testKaput();
+        dist2SubcommitteeWithAppendix();
+
     }
 
     void testKaput() {
@@ -103,7 +108,6 @@ public class MyBusinessProcessTest {
             map.put("START_GATEWAY", Reminder.Day30.gatewayValue());
             headerService.startReminderProcess(bizKey1, userId, map, Reminder.Day30);
 
-
             List<Job> timerList = managementService
                     .createJobQuery()
                     .processInstanceId(headerService.getReminderInstanceId(bizKey1, Reminder.Day30))
@@ -131,14 +135,23 @@ public class MyBusinessProcessTest {
         Map<String, Object> hasAppendix = new HashMap<String, Object>();
         hasAppendix.put("hasAppendixA", true);
         headerService.startProtocolProcess(bizKey, userId, hasAppendix);
+        //
         distToSubcommittee(bizKey, "admin");
         log.info("after distribute subcommittee open tasks:");
-        printOpenTaskList(bizKey);
-        //approveAppendixA(bizKey, "safetyOfficeDam");
-        //holdAppendixB(bizKey, "safetyOfficeHolder");
-        //subcommitteeReview(bizKey, "admin");
         log.info("taskCount={}", taskCount(bizKey));
-        log.info("after return to PI open tasks:");
+        printOpenTaskList(bizKey);
+        // approveAppendixA(bizKey, "safetyOfficeDam");
+        // holdAppendixB(bizKey, "safetyOfficeHolder");
+        // subcommitteeReview(bizKey, "admin");
+        // log.info("taskCount={}", taskCount(bizKey));
+        // log.info("after return to PI open tasks:");
+        // printOpenTaskList(bizKey);
+        completeTask(bizKey,
+                     "safety officer1",
+                     "soPreApproveA",
+                     "Safety Office Pre-approve Appendix-A",
+                     "testing");
+        log.info("after safety officer approved, taskCount={}", taskCount(bizKey));
         printOpenTaskList(bizKey);
     }
 
@@ -177,8 +190,8 @@ public class MyBusinessProcessTest {
     }
 
 
-    void distToSubcommittee(String bizKey, String user) {
-        IacucDistributeSubcommitteeForm iacucTaskForm = new IacucDistributeSubcommitteeForm();
+    void distToSubcommittee(final String bizKey, final String user) {
+        final IacucDistributeSubcommitteeForm iacucTaskForm = new IacucDistributeSubcommitteeForm();
         iacucTaskForm.setBizKey(bizKey);
         iacucTaskForm.setAuthor(user);
         iacucTaskForm.setComment("distribute protocol to subcommittee");
@@ -232,13 +245,17 @@ public class MyBusinessProcessTest {
                 .processInstanceBusinessKey(bizKey).count();
     }
 
-    void printOpenTaskList(String bizKey) {
-        log.info("open tasks:");
-        List<Task> taskList = taskService
+    void printOpenTaskList(final String bizKey) {
+        final List<Task> taskList = taskService
                 .createTaskQuery()
                 .processInstanceBusinessKey(bizKey)
                 .list();
-        for (Task task : taskList) {
+        if(taskList.isEmpty()) {
+            log.info("No open tasks");
+            return;
+        }
+        log.info("open tasks:");
+        for (final Task task : taskList) {
             log.info("taskDefKey={},taskName={}", task.getTaskDefinitionKey(), task.getName());
         }
     }
@@ -251,8 +268,12 @@ public class MyBusinessProcessTest {
         }
     }
 
-    private void completeTask(String bizKey, String userId, String taskDefKey, String taskName, String comment) {
-        IacucTaskForm taskForm = new IacucTaskForm();
+    private void completeTask(final String bizKey,
+                              final String userId,
+                              final String taskDefKey,
+                              final String taskName,
+                              final String comment) {
+        final IacucTaskForm taskForm = new IacucTaskForm();
         taskForm.setBizKey(bizKey);
         taskForm.setAuthor(userId);
         taskForm.setTaskDefKey(taskDefKey);

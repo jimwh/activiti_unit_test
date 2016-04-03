@@ -25,7 +25,6 @@
         <property name="transactionManager" ref="transactionManager"/>
         <property name="databaseSchemaUpdate" value="true"/>
         <property name="jobExecutorActivate" value="true"/>
-
         <property name="deploymentResources"
                   value="classpath*:/iacuc/*.bpmn20.xml" />
     </bean>

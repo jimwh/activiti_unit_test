@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class IacucListener implements TaskListener, ExecutionListener {
+public final class IacucListener implements TaskListener, ExecutionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,6 +39,16 @@ public class IacucListener implements TaskListener, ExecutionListener {
     private static final String appendixFApproved = "fApproved";
     private static final String appendixGApproved = "gApproved";
     private static final String appendixIApproved = "iApproved";
+
+    private static final String[] approvedName = {
+            appendixAApproved,
+            appendixBApproved,
+            appendixCApproved,
+            appendixDApproved,
+            appendixEApproved,
+            appendixFApproved,
+            appendixGApproved,
+            appendixIApproved};
 
     private static final String CanRedistribute = "canRedistribute";
     private static final String Redistribute = "redistribute";
@@ -106,125 +116,129 @@ public class IacucListener implements TaskListener, ExecutionListener {
      * Task listener will be called  by activity
      */
     @Override
-    public void notify(DelegateTask delegateTask) {
+    public void notify(final DelegateTask delegateTask) {
 
         if (!delegateTask.getProcessDefinitionId().contains("IacucApprovalProcess")) {
             return;
         }
 
-        String eventName = delegateTask.getEventName();
+        final String eventName = delegateTask.getEventName();
         if (EVENTNAME_CREATE.equals(eventName)) {
             onCreate(delegateTask);
         } else if (EVENTNAME_COMPLETE.equals(eventName)) {
             try {
                 onComplete(delegateTask);
             } catch (Exception e) {
+                log.error("caught: ", e);
                 throw new ActivitiIllegalArgumentException(e.getMessage());
             }
         }
     }
 
-    private void onCreate(DelegateTask delegateTask) {
-        DelegateExecution taskExecution = delegateTask.getExecution();
-        String bizKey = taskExecution.getProcessBusinessKey();
-        String processId = taskExecution.getProcessInstanceId();
-        String taskId = delegateTask.getId();
-        String taskDefKey = delegateTask.getTaskDefinitionKey();
+    private void onCreate(final DelegateTask delegateTask) {
+        final DelegateExecution taskExecution = delegateTask.getExecution();
+        final String bizKey = taskExecution.getProcessBusinessKey();
+        final String processId = taskExecution.getProcessInstanceId();
+        final String taskId = delegateTask.getId();
+        final String taskDefKey = delegateTask.getTaskDefinitionKey();
         log.info("create: bizKey={}, taskDefKey={}, taskId={}, processId={}",
                 bizKey, taskDefKey, taskId, processId);
     }
 
-    private void onComplete(DelegateTask delegateTask) throws Exception {
+    private void onComplete(final DelegateTask delegateTask) throws Exception {
 
-        DelegateExecution taskExecution = delegateTask.getExecution();
-        String bizKey = taskExecution.getProcessBusinessKey();
-        String taskDefKey = delegateTask.getTaskDefinitionKey();
-        if (!IacucStatus.FinalApproval.isDefKey(taskDefKey)) {
+        final DelegateExecution taskExecution = delegateTask.getExecution();
+        final String bizKey = taskExecution.getProcessBusinessKey();
+        final String taskDefKey = delegateTask.getTaskDefinitionKey();
+        attachSnapshot(taskDefKey, bizKey);
+        /*
+        if (!IacucStatus.FinalApproval.isDefKey(taskDefKey) && headerService!=null) {
             // header service may be null during unit test
-            if (headerService != null)
                 headerService.attachSnapshot(bizKey, taskDefKey);
         }
-
+        */
+        /*
         if (IacucStatus.DistributeReviewer.isDefKey(taskDefKey)) {
             taskExecution.setVariable("hasReviewer", true);
             taskExecution.setVariable(CanRedistribute, true);
-        } else if (IacucStatus.Redistribute.isDefKey(taskDefKey)) {
+        }
+        */
+        updateReviewer(taskDefKey, taskExecution);
+
+        if (IacucStatus.Redistribute.isDefKey(taskDefKey)) {
             if (!(Boolean) taskExecution.getVariable(CanRedistribute)) {
                 // enforce you can't complete this task
                 throw new ActivitiIllegalArgumentException("Illegal action.");
             }
             taskExecution.setVariable(Redistribute, true);
-        } else if (UndoMap.get(taskDefKey) != null) {
+        }
+        else if (UndoMap.containsKey(taskDefKey) ) {
             // do nothing if user action
             if (taskExecution.getVariable("userClosed") == null) {
                 taskExecution.setVariable(UndoApproval, UndoMap.get(taskDefKey));
             }
-        } else if (RvHoldOrReqFullRvSet.contains(taskDefKey)) {
+        }
+        else if (RvHoldOrReqFullRvSet.contains(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
             taskExecution.setVariable(CanRedistribute, false);
             taskExecution.setVariable(Redistribute, false);
-        } else if (RvApprovalCannotDistributeSet.contains(taskDefKey)) {
+        }
+        else if (RvApprovalCannotDistributeSet.contains(taskDefKey)) {
             taskExecution.setVariable(CanRedistribute, false);
             taskExecution.setVariable(Redistribute, false);
-        } else if (SoApproveMap.get(taskDefKey) != null) {
+        }
+        else if ( SoApproveMap.containsKey(taskDefKey) ) {
             taskExecution.setVariable(SoApproveMap.get(taskDefKey), true);
             updateAppendixApproveStatus(delegateTask);
-        } else if (SoHoldSet.contains(taskDefKey)) {
+        }
+        else if (SoHoldSet.contains(taskDefKey)) {
             taskExecution.setVariable(AllAppendicesApproved, false);
         }
     }
 
+    private void updateReviewer(final String taskDefKey, final DelegateExecution taskExecution) {
+        if (IacucStatus.DistributeReviewer.isDefKey(taskDefKey)) {
+            taskExecution.setVariable("hasReviewer", true);
+            taskExecution.setVariable(CanRedistribute, true);
+        }
+    }
 
-    private void updateAppendixApproveStatus(DelegateTask delegateTask) {
-
-        if (!(Boolean) delegateTask.getVariable(appendixAApproved)) {
-            return;
+    private void attachSnapshot(final String taskDefKey, final String bizKey) {
+        if (!IacucStatus.FinalApproval.isDefKey(taskDefKey) && headerService != null) {
+            // header service may be null during unit test
+            headerService.attachSnapshot(bizKey, taskDefKey);
         }
-        if (!(Boolean) delegateTask.getVariable(appendixBApproved)) {
-            return;
+    }
+    private void updateAppendixApproveStatus(final DelegateTask delegateTask) {
+        for(final String name: approvedName) {
+            if( !(Boolean) delegateTask.getVariable(name) ) {
+                return;
+            }
         }
-        if (!(Boolean) delegateTask.getVariable(appendixCApproved)) {
-            return;
-        }
-        if (!(Boolean) delegateTask.getVariable(appendixDApproved)) {
-            return;
-        }
-        if (!(Boolean) delegateTask.getVariable(appendixEApproved)) {
-            return;
-        }
-        if (!(Boolean) delegateTask.getVariable(appendixFApproved)) {
-            return;
-        }
-        if (!(Boolean) delegateTask.getVariable(appendixGApproved)) {
-            return;
-        }
-        if (!(Boolean) delegateTask.getVariable(appendixIApproved)) {
-            return;
-        }
-
         delegateTask.setVariable(AllAppendicesApproved, true);
     }
+
 
     /**
      * Execution listener will be called  by activity
      */
     @Override
-    public void notify(DelegateExecution delegateExecution) throws Exception {
+    public void notify(final DelegateExecution delegateExecution) throws Exception {
         if (!delegateExecution.getProcessDefinitionId().contains("IacucApprovalProcess")) {
             return;
         }
-        String eventName = delegateExecution.getEventName();
+        final String eventName = delegateExecution.getEventName();
         if (EVENTNAME_START.equals(eventName)) {
             onStart(delegateExecution);
         }
     }
 
     // on process start
-    private void onStart(DelegateExecution delegateExecution) throws Exception {
+    private void onStart(final DelegateExecution delegateExecution) throws Exception {
 
-        ExecutionEntity thisEntity = (ExecutionEntity) delegateExecution;
-        ExecutionEntity superExecEntity = thisEntity.getSuperExecution();
-        String eventName = delegateExecution.getEventName();
+        final ExecutionEntity thisEntity = (ExecutionEntity) delegateExecution;
+        final ExecutionEntity superExecEntity = thisEntity.getSuperExecution();
+        final String eventName = delegateExecution.getEventName();
 
         if (superExecEntity == null) {
             setUpAppendixApproveStatus(delegateExecution);
@@ -236,8 +250,8 @@ public class IacucListener implements TaskListener, ExecutionListener {
 
         } else {
             // in a sub-process so get the BusinessKey variable set by the caller.
-            String key = (String) superExecEntity.getVariable("BusinessKey");
-            boolean hasAppendix = (Boolean) superExecEntity.getVariable("hasAppendix");
+            final String key = (String) superExecEntity.getVariable("BusinessKey");
+            final boolean hasAppendix = (Boolean) superExecEntity.getVariable("hasAppendix");
             log.info("sub-process: eventName={}, bizKey={}, procDefId={}, hasAppendix={}",
                     eventName, key, thisEntity.getProcessDefinitionId(), hasAppendix);
             thisEntity.setVariable("BusinessKey", key);
@@ -246,88 +260,33 @@ public class IacucListener implements TaskListener, ExecutionListener {
         }
     }
 
-    private void setUpAppendixApproveStatus(DelegateExecution exe) {
+    private boolean updateAppendixStatus(final boolean bool,
+                                        final DelegateExecution exe,
+                                        final String hasAppendix,
+                                        final String approved) {
+        boolean retBool=bool;
+        if (exe.getVariable(hasAppendix) == null) {
+            exe.setVariable(hasAppendix, false);
+            exe.setVariable(approved, true);
+        } else if ((Boolean) exe.getVariable(hasAppendix)) {
+            exe.setVariable(approved, false);
+            retBool = false;
+        } else {
+            exe.setVariable(approved, true);
+        }
+        return retBool;
+    }
+
+    private void setUpAppendixApproveStatus(final DelegateExecution exe) {
         boolean bool = true;
-
-        if (exe.getVariable(hasAppendixA) == null) {
-            exe.setVariable(hasAppendixA, false);
-            exe.setVariable(appendixAApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixA)) {
-            exe.setVariable(appendixAApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixAApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixB) == null) {
-            exe.setVariable(hasAppendixB, false);
-            exe.setVariable(appendixBApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixB)) {
-            exe.setVariable(appendixBApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixBApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixC) == null) {
-            exe.setVariable(hasAppendixC, false);
-            exe.setVariable(appendixCApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixC)) {
-            exe.setVariable(appendixCApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixCApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixD) == null) {
-            exe.setVariable(hasAppendixD, false);
-            exe.setVariable(appendixDApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixD)) {
-            exe.setVariable(appendixDApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixDApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixE) == null) {
-            exe.setVariable(hasAppendixE, false);
-            exe.setVariable(appendixEApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixE)) {
-            exe.setVariable(appendixEApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixEApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixF) == null) {
-            exe.setVariable(hasAppendixF, false);
-            exe.setVariable(appendixFApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixF)) {
-            exe.setVariable(appendixFApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixFApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixG) == null) {
-            exe.setVariable(hasAppendixG, false);
-            exe.setVariable(appendixGApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixG)) {
-            exe.setVariable(appendixGApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixGApproved, true);
-        }
-
-        if (exe.getVariable(hasAppendixI) == null) {
-            exe.setVariable(hasAppendixI, false);
-            exe.setVariable(appendixIApproved, true);
-        } else if ((Boolean) exe.getVariable(hasAppendixI)) {
-            exe.setVariable(appendixIApproved, false);
-            bool = false;
-        } else {
-            exe.setVariable(appendixIApproved, true);
-        }
+        bool = updateAppendixStatus(bool, exe, hasAppendixA, appendixAApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixB, appendixBApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixC, appendixCApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixD, appendixDApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixE, appendixEApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixF, appendixFApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixG, appendixGApproved);
+        bool = updateAppendixStatus(bool, exe, hasAppendixI, appendixIApproved);
 
         exe.setVariable(AllAppendicesApproved, bool);
         exe.setVariable("hasAppendix", !bool);
@@ -335,14 +294,14 @@ public class IacucListener implements TaskListener, ExecutionListener {
     }
 
 
-    public void expirationReminder(DelegateExecution execution) throws Exception {
+    public void expirationReminder(final DelegateExecution execution) throws Exception {
         if (Reminder.Day30.isServiceTaskId(execution.getCurrentActivityId())) {
             reminder30(execution);
         }
     }
 
 
-    private void reminder30(DelegateExecution execution) throws Exception {
+    private void reminder30(final DelegateExecution execution) throws Exception {
         int retries = 0;
         while (true) {
             try {

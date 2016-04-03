@@ -850,7 +850,13 @@
 
             <sequenceFlow sourceRef="fooJoin" targetRef="finalApproval">
                 <conditionExpression xsi:type="tFormalExpression">
-                    ${redistribute==false and allRvs==true and allAppendicesApproved==true }
+                    ${redistribute==false and allRvs==true and allAppendicesApproved==true and T1_OUT == 2}
+                </conditionExpression>
+            </sequenceFlow>
+
+            <sequenceFlow sourceRef="fooJoin" targetRef="stop">
+                <conditionExpression xsi:type="tFormalExpression">
+                    ${redistribute==false and allRvs==true and allAppendicesApproved==true and T1_OUT == 1}
                 </conditionExpression>
             </sequenceFlow>
 
