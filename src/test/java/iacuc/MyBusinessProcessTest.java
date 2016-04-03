@@ -137,15 +137,9 @@ public class MyBusinessProcessTest {
         headerService.startProtocolProcess(bizKey, userId, hasAppendix);
         //
         distToSubcommittee(bizKey, "admin");
-        log.info("after distribute subcommittee open tasks:");
-        log.info("taskCount={}", taskCount(bizKey));
+        log.info("after distribute subcommittee open tasks, taskCount={}", taskCount(bizKey));
         printOpenTaskList(bizKey);
-        // approveAppendixA(bizKey, "safetyOfficeDam");
-        // holdAppendixB(bizKey, "safetyOfficeHolder");
-        // subcommitteeReview(bizKey, "admin");
-        // log.info("taskCount={}", taskCount(bizKey));
-        // log.info("after return to PI open tasks:");
-        // printOpenTaskList(bizKey);
+        //
         completeTask(bizKey,
                      "safety officer1",
                      "soPreApproveA",
@@ -170,14 +164,7 @@ public class MyBusinessProcessTest {
             processMap.put("hasAppendixG", false);
             processMap.put("hasAppendixI", false);
             headerService.startProtocolProcess(bk, "bob", processMap);
-
             distToSubcommittee(bk, "admin");
-            //approveAppendixA(bizKey, "safetyOfficeDam");
-            //holdAppendixB(bizKey, "safetyOfficeHolder");
-            // subcommitteeReview(bizKey, "admin");
-            //returnToPI(bizKey, "admin");
-            //log.info("taskCount={}", taskCount(bizKey));
-            //printOpenTaskList(bizKey);
         }
         Set<String> set = new HashSet<String>();
         Map<String, Date> map = headerService.getBizKeyMeetingDate(set);

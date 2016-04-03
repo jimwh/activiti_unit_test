@@ -1,18 +1,18 @@
 package edu.columbia.rascal.business.service.review.iacuc;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import edu.columbia.rascal.business.service.IacucProtocolHeaderService;
+import javax.annotation.Resource;
 import org.activiti.engine.ActivitiIllegalArgumentException;
-import org.activiti.engine.delegate.*;
+import org.activiti.engine.delegate.BpmnError;
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.delegate.ExecutionListener;
+import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 
 public final class IacucListener implements TaskListener, ExecutionListener {
 
@@ -54,60 +54,59 @@ public final class IacucListener implements TaskListener, ExecutionListener {
     private static final String Redistribute = "redistribute";
     private static final String UndoApproval = "undoApproval";
 
-    private static final Map<String, Boolean> UndoMap = new HashMap<String, Boolean>();
-    private static final Set<String> RvApprovalCannotDistributeSet = new HashSet<String>();
-    private static final Set<String> RvHoldOrReqFullRvSet = new HashSet<String>();
-    private static final Map<String, String> SoApproveMap = new HashMap<String, String>();
-    private static final Set<String> SoHoldSet = new HashSet<String>();
 
-    static {
-        UndoMap.put(IacucStatus.ReturnToPI.taskDefKey(), false);
-        UndoMap.put(IacucStatus.UndoApproval.taskDefKey(), true);
-        UndoMap.put(IacucStatus.FinalApproval.taskDefKey(), false);
-    }
+    private static final ImmutableMap<String, Boolean> UndoMap =
+            new ImmutableMap.Builder<String, Boolean>()
+                    .put(IacucStatus.ReturnToPI.taskDefKey(), false)
+                    .put(IacucStatus.UndoApproval.taskDefKey(), true)
+                    .put(IacucStatus.FinalApproval.taskDefKey(), false)
+                    .build();
 
-    static {
-        RvApprovalCannotDistributeSet.add(IacucStatus.Rv1Approval.taskDefKey());
-        RvApprovalCannotDistributeSet.add(IacucStatus.Rv2Approval.taskDefKey());
-        RvApprovalCannotDistributeSet.add(IacucStatus.Rv3Approval.taskDefKey());
-        RvApprovalCannotDistributeSet.add(IacucStatus.Rv4Approval.taskDefKey());
-        RvApprovalCannotDistributeSet.add(IacucStatus.Rv5Approval.taskDefKey());
-    }
+    private static final ImmutableSet<String> RvApprovalCannotDistributeSet =
+            new ImmutableSet.Builder<String>()
+                    .add(IacucStatus.Rv1Approval.taskDefKey())
+                    .add(IacucStatus.Rv2Approval.taskDefKey())
+                    .add(IacucStatus.Rv3Approval.taskDefKey())
+                    .add(IacucStatus.Rv4Approval.taskDefKey())
+                    .add(IacucStatus.Rv5Approval.taskDefKey())
+                    .build();
 
-    static {
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv1Hold.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv1ReqFullReview.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv2Hold.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv2ReqFullReview.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv3Hold.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv3ReqFullReview.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv4Hold.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv4ReqFullReview.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv5Hold.taskDefKey());
-        RvHoldOrReqFullRvSet.add(IacucStatus.Rv5ReqFullReview.taskDefKey());
-    }
+    private static final ImmutableMap<String, String> SoApproveMap =
+            new ImmutableMap.Builder<String, String>()
+                    .put(IacucStatus.SOPreApproveA.taskDefKey(), appendixAApproved)
+                    .put(IacucStatus.SOPreApproveB.taskDefKey(), appendixBApproved)
+                    .put(IacucStatus.SOPreApproveC.taskDefKey(), appendixCApproved)
+                    .put(IacucStatus.SOPreApproveD.taskDefKey(), appendixDApproved)
+                    .put(IacucStatus.SOPreApproveE.taskDefKey(), appendixEApproved)
+                    .put(IacucStatus.SOPreApproveF.taskDefKey(), appendixFApproved)
+                    .put(IacucStatus.SOPreApproveG.taskDefKey(), appendixGApproved)
+                    .put(IacucStatus.SOPreApproveI.taskDefKey(), appendixIApproved)
+                    .build();
 
-    static {
-        SoApproveMap.put(IacucStatus.SOPreApproveA.taskDefKey(), appendixAApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveB.taskDefKey(), appendixBApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveC.taskDefKey(), appendixCApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveD.taskDefKey(), appendixDApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveE.taskDefKey(), appendixEApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveF.taskDefKey(), appendixFApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveG.taskDefKey(), appendixGApproved);
-        SoApproveMap.put(IacucStatus.SOPreApproveI.taskDefKey(), appendixIApproved);
-    }
+    private static final ImmutableSet<String> SoHoldSet =
+            new ImmutableSet.Builder<String>()
+                    .add(IacucStatus.SOHoldA.taskDefKey())
+                    .add(IacucStatus.SOHoldB.taskDefKey())
+                    .add(IacucStatus.SOHoldC.taskDefKey())
+                    .add(IacucStatus.SOHoldD.taskDefKey())
+                    .add(IacucStatus.SOHoldE.taskDefKey())
+                    .add(IacucStatus.SOHoldF.taskDefKey())
+                    .add(IacucStatus.SOHoldG.taskDefKey())
+                    .add(IacucStatus.SOHoldI.taskDefKey()).build();
 
-    static {
-        SoHoldSet.add(IacucStatus.SOHoldA.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldB.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldC.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldD.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldE.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldF.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldG.taskDefKey());
-        SoHoldSet.add(IacucStatus.SOHoldI.taskDefKey());
-    }
+    private static final ImmutableSet<String> RvHoldOrReqFullRvSet =
+            new ImmutableSet.Builder<String>()
+                    .add(IacucStatus.Rv1Hold.taskDefKey())
+                    .add(IacucStatus.Rv1ReqFullReview.taskDefKey())
+                    .add(IacucStatus.Rv2Hold.taskDefKey())
+                    .add(IacucStatus.Rv2ReqFullReview.taskDefKey())
+                    .add(IacucStatus.Rv3Hold.taskDefKey())
+                    .add(IacucStatus.Rv3ReqFullReview.taskDefKey())
+                    .add(IacucStatus.Rv4Hold.taskDefKey())
+                    .add(IacucStatus.Rv4ReqFullReview.taskDefKey())
+                    .add(IacucStatus.Rv5Hold.taskDefKey())
+                    .add(IacucStatus.Rv5ReqFullReview.taskDefKey())
+                    .build();
 
     @Resource
     private IacucProtocolHeaderService headerService;
@@ -171,27 +170,22 @@ public final class IacucListener implements TaskListener, ExecutionListener {
                 throw new ActivitiIllegalArgumentException("Illegal action.");
             }
             taskExecution.setVariable(Redistribute, true);
-        }
-        else if (UndoMap.containsKey(taskDefKey) ) {
+        } else if (UndoMap.containsKey(taskDefKey)) {
             // do nothing if user action
             if (taskExecution.getVariable("userClosed") == null) {
                 taskExecution.setVariable(UndoApproval, UndoMap.get(taskDefKey));
             }
-        }
-        else if (RvHoldOrReqFullRvSet.contains(taskDefKey)) {
+        } else if (RvHoldOrReqFullRvSet.contains(taskDefKey)) {
             taskExecution.setVariable(AllRvs, false);
             taskExecution.setVariable(CanRedistribute, false);
             taskExecution.setVariable(Redistribute, false);
-        }
-        else if (RvApprovalCannotDistributeSet.contains(taskDefKey)) {
+        } else if (RvApprovalCannotDistributeSet.contains(taskDefKey)) {
             taskExecution.setVariable(CanRedistribute, false);
             taskExecution.setVariable(Redistribute, false);
-        }
-        else if ( SoApproveMap.containsKey(taskDefKey) ) {
+        } else if (SoApproveMap.containsKey(taskDefKey)) {
             taskExecution.setVariable(SoApproveMap.get(taskDefKey), true);
             updateAppendixApproveStatus(delegateTask);
-        }
-        else if (SoHoldSet.contains(taskDefKey)) {
+        } else if (SoHoldSet.contains(taskDefKey)) {
             taskExecution.setVariable(AllAppendicesApproved, false);
         }
     }
@@ -209,9 +203,10 @@ public final class IacucListener implements TaskListener, ExecutionListener {
             headerService.attachSnapshot(bizKey, taskDefKey);
         }
     }
+
     private void updateAppendixApproveStatus(final DelegateTask delegateTask) {
-        for(final String name: approvedName) {
-            if( !(Boolean) delegateTask.getVariable(name) ) {
+        for (final String name : approvedName) {
+            if (!(Boolean) delegateTask.getVariable(name)) {
                 return;
             }
         }
@@ -261,10 +256,10 @@ public final class IacucListener implements TaskListener, ExecutionListener {
     }
 
     private boolean updateAppendixStatus(final boolean bool,
-                                        final DelegateExecution exe,
-                                        final String hasAppendix,
-                                        final String approved) {
-        boolean retBool=bool;
+                                         final DelegateExecution exe,
+                                         final String hasAppendix,
+                                         final String approved) {
+        boolean retBool = bool;
         if (exe.getVariable(hasAppendix) == null) {
             exe.setVariable(hasAppendix, false);
             exe.setVariable(approved, true);
