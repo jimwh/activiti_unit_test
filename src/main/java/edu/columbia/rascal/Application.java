@@ -19,14 +19,8 @@ public class Application {
 
         ApplicationContext ctx= SpringApplication.run(Application.class, args);
         KickOff kickOff = ctx.getBean(KickOff.class);
+
         kickOff.startUp();
-        /*
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext(
-                        new String[]{"spring-context.xml"});
-        KickOff kickOff = context.getBean(KickOff.class);
-        kickOff.startUp();
-        */
 
         SpringApplication.exit(ctx);
         log.info("end ...");
