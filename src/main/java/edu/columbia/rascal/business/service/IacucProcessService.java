@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 @Service
-final class IacucProcessService {
+public final class IacucProcessService {
 
     static final Logger log = LoggerFactory.getLogger(IacucProcessService.class);
 
