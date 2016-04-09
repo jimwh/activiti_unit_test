@@ -16,14 +16,10 @@ public class Application {
     static final Logger log = LoggerFactory.getLogger(Application.class);
     public static void main(String[] args) {
         log.info("start ...");
-
         ApplicationContext ctx= SpringApplication.run(Application.class, args);
         AppTaskQuery appTaskQuery = ctx.getBean(AppTaskQuery.class);
-
         appTaskQuery.startUp();
-
         SpringApplication.exit(ctx);
         log.info("end ...");
-        System.exit(0);
     }
 }
