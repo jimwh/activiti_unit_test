@@ -18,9 +18,9 @@ public class Application {
         log.info("start ...");
 
         ApplicationContext ctx= SpringApplication.run(Application.class, args);
-        KickOff kickOff = ctx.getBean(KickOff.class);
+        AppTaskQuery appTaskQuery = ctx.getBean(AppTaskQuery.class);
 
-        kickOff.startUp();
+        appTaskQuery.startUp();
 
         SpringApplication.exit(ctx);
         log.info("end ...");

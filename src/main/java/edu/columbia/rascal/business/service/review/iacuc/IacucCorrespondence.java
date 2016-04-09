@@ -20,7 +20,7 @@ public class IacucCorrespondence {
     private Date creationDate;
     private String fromFirstLastNameUni;
     // just for front show purpose
-    private boolean showCorrToUser = false;
+    private boolean showCorrToUser;
 
     public String getId() {
         return id;
@@ -30,7 +30,7 @@ public class IacucCorrespondence {
         return from;
     }
 
-    public void setFrom(String fromUni) {
+    public void setFrom(final String fromUni) {
         this.from = fromUni;
     }
 
@@ -42,7 +42,7 @@ public class IacucCorrespondence {
         return subject;
     }
 
-    public void setSubject(String subject) {
+    public void setSubject(final String subject) {
         this.subject = subject;
     }
 
@@ -54,12 +54,12 @@ public class IacucCorrespondence {
         return text;
     }
 
-    public void setText(String text) {
+    public void setText(final String text) {
         this.text = text;
     }
 
     public Date getCreationDate() {
-        return creationDate;
+        return this.creationDate == null ? null : new Date(creationDate.getTime());
     }
 
     public void apply() {
@@ -73,15 +73,21 @@ public class IacucCorrespondence {
         return fromFirstLastNameUni;
     }
 
-    public void setFromFirstLastNameUni(String flu) {
+    public void setFromFirstLastNameUni(final String flu) {
         fromFirstLastNameUni = flu;
     }
 
     // it is for activity use, not for you
     public boolean isValid() {
-        if (StringUtils.isBlank(this.id)) return false;
-        if (!isValidFrom()) return false;
-        if (!isValidRecipient()) return false;
+        if (StringUtils.isBlank(this.id)) {
+            return false;
+        }
+        if (!isValidFrom()) {
+            return false;
+        }
+        if (!isValidRecipient()) {
+            return false;
+        }
         return isValidSubject();
     }
 
@@ -89,36 +95,40 @@ public class IacucCorrespondence {
         return recipient;
     }
 
-    public void setRecipient(String recipient) {
+    public void setRecipient(final String recipient) {
         this.recipient = recipient;
     }
 
     public boolean isValidRecipient() {
-        List<String> list = getRecipientAsList();
+        final List<String> list = getRecipientAsList();
         return !list.isEmpty();
     }
 
     public List<String> getRecipientAsList() {
-        List<String> list = new ArrayList<String>();
-        if (StringUtils.isBlank(recipient)) return list;
-        String noSpaces = removeSpaces(recipient);
+        final List<String> list = new ArrayList<String>();
+        if (StringUtils.isBlank(recipient)) {
+            return list;
+        }
+        final String noSpaces = removeSpaces(recipient);
         list.addAll(Arrays.asList(noSpaces.split(",")));
         return list;
     }
 
-    private String removeSpaces(String foo) {
+    private String removeSpaces(final String foo) {
         return foo.replaceAll("\\s+", "");
     }
 
     public List<String> getCarbonCopyAsList() {
-        List<String> list = new ArrayList<String>();
-        if (StringUtils.isBlank(carbonCopy)) return list;
-        String noSpaces = removeSpaces(carbonCopy);
+        final List<String> list = new ArrayList<String>();
+        if (StringUtils.isBlank(carbonCopy)) {
+            return list;
+        }
+        final String noSpaces = removeSpaces(carbonCopy);
         list.addAll(Arrays.asList(noSpaces.split(",")));
         return list;
     }
 
-    public boolean recipientContains(String uni) {
+    public boolean recipientContains(final String uni) {
         return this.recipient != null && this.recipient.contains(uni);
     }
 
@@ -126,31 +136,31 @@ public class IacucCorrespondence {
         return carbonCopy;
     }
 
-    public void setCarbonCopy(String carbonCopy) {
+    public void setCarbonCopy(final String carbonCopy) {
         this.carbonCopy = carbonCopy;
     }
 
-    public boolean carbonCopyContains(String uni) {
+    public boolean carbonCopyContains(final String uni) {
         return this.carbonCopy != null && this.carbonCopy.contains(uni);
     }
 
     // save data to activity table
     public Map<String, String> getProperties() {
-        Map<String, String> map = new HashMap<String, String>();
+        final Map<String, String> map = new HashMap<String, String>();
         if (StringUtils.isBlank(id)) {
             apply();
         }
         if (StringUtils.isBlank(from)) {
-        	log.error("empty from uni");
+            log.error("empty from uni");
             return map;
         } else if (StringUtils.isBlank(recipient)) {
-        	log.error("empty recipient");
+            log.error("empty recipient");
             return map;
         } else if (StringUtils.isBlank(subject)) {
-        	log.error("empty subject");
+            log.error("empty subject");
             return map;
         } else if (StringUtils.isBlank(text)) {
-        	log.error("empty text");
+            log.error("empty text");
             return map;
         }
 
@@ -160,30 +170,30 @@ public class IacucCorrespondence {
         map.put("subject", subject);
         map.put("text", text);
         map.put("carbonCopy", carbonCopy);
-        DateTime dateTime=new DateTime(creationDate);
+        final DateTime dateTime = new DateTime(creationDate);
         // attention: this is joda DateTime string
         map.put("creationDate", dateTime.toString());
         return map;
     }
 
-    public boolean setProperties(Map<String, String> map) {
+    public boolean setProperties(final Map<String, String> map) {
         if (map == null || map.isEmpty()) {
             log.error("empty map");
             return false;
         }
         boolean bool = true;
         this.id = map.get("id");
-        if(id==null) {
+        if (id == null) {
             log.error("no id");
             bool = false;
         }
         from = map.get("from");
-        if (from==null) {
+        if (from == null) {
             log.error("no from");
             bool = false;
         }
         recipient = map.get("recipient");
-        if( recipient==null) {
+        if (recipient == null) {
             log.error("no recipient");
             bool = false;
         }
@@ -191,29 +201,32 @@ public class IacucCorrespondence {
         carbonCopy = map.get("carbonCopy");
 
         subject = map.get("subject");
-        if( subject==null) {
+        if (subject == null) {
             log.error("no subject");
             bool = false;
         }
         text = map.get("text");
-        if( text==null) {
+        if (text == null) {
             log.error("no body");
             bool = false;
         }
-        String jodaDateTimeString=map.get("creationDate");
-        if (jodaDateTimeString != null) {
-            creationDate = new DateTime(jodaDateTimeString).toDate();
-        } else {
+        final String jodaDateTimeString = map.get("creationDate");
+        if (jodaDateTimeString == null) {
             log.error("no date");
             bool = false;
+        } else {
+            creationDate = new DateTime(jodaDateTimeString).toDate();
+
         }
 
         return bool;
     }
 
     public String getDateString() {
-        if (creationDate == null) return "";
-        DateTime dateTime = new DateTime(creationDate);
+        if (creationDate == null) {
+            return "";
+        }
+        final DateTime dateTime = new DateTime(creationDate);
         return dateTime.toString("MM/dd/yyyy HH:mm:ss");
     }
 
@@ -221,35 +234,29 @@ public class IacucCorrespondence {
         return showCorrToUser;
     }
 
-    public void setShowCorrToUser(String userId) {
-        if (!StringUtils.isBlank(from)) {
-            if (from.contains(userId)) {
-                showCorrToUser = true;
-            }
+    public void setShowCorrToUser(final String userId) {
+        if (!StringUtils.isBlank(from) && from.contains(userId)) {
+            showCorrToUser = true;
         }
-        if (!StringUtils.isBlank(recipient)) {
-            if (recipient.contains(userId)) {
-                showCorrToUser = true;
-            }
+        if (!StringUtils.isBlank(recipient) && recipient.contains(userId)) {
+            showCorrToUser = true;
         }
-        if (!StringUtils.isBlank(carbonCopy)) {
-            if (carbonCopy.contains(userId)) {
-                showCorrToUser = true;
-            }
+        if (!StringUtils.isBlank(carbonCopy) && carbonCopy.contains(userId)) {
+            showCorrToUser = true;
         }
     }
 
-    
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[id=").append(id)
+        final StringBuilder sb = new StringBuilder(128);
+        sb.append("id=").append(id)
                 .append(",from=").append(from)
                 .append(",to=").append(recipient)
                 .append(",cc=").append(carbonCopy)
                 .append(",subject=").append(subject)
                 .append(",body=").append(text)
-                .append(",date=").append(creationDate).append("]");
+                .append(",date=").append(creationDate);
         return sb.toString();
     }
 

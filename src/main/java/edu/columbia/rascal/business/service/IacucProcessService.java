@@ -9,6 +9,7 @@ import edu.columbia.rascal.business.service.review.iacuc.Reminder;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.annotation.Resource;
@@ -769,8 +770,8 @@ public final class IacucProcessService {
 
         // for show business
         if (IacucStatus.DistributeSubcommittee.isDefKey(taskDefKey) &&
-            iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
-                taskService.setVariable(taskId, "meetingDate", iacucTaskForm.getDate());
+                iacucTaskForm instanceof IacucDistributeSubcommitteeForm) {
+            taskService.setVariable(taskId, "meetingDate", iacucTaskForm.getDate());
         }
         /*
         // determine the direction
@@ -789,7 +790,7 @@ public final class IacucProcessService {
         final java.util.Map<String, Object> map = iacucTaskForm.getTaskVariables();
         if (map == null || map.isEmpty()) {
             taskService.complete(taskId); // go straight
-        }else {
+        } else {
             taskService.complete(taskId, map); // go left/right/middle or go ...
         }
     }
@@ -905,7 +906,7 @@ public final class IacucProcessService {
         return listIacucTaskForm;
     }
 
-    
+
     private java.util.List<org.activiti.engine.history.HistoricTaskInstance> getHistoriceTaskInstance(final String processDefKey, final String bizKey) {
         // if taskDeleteReason="deleted", that task was closed by activity.
         // if taskDeleteReason="completed", that task was closed by user action
@@ -922,21 +923,20 @@ public final class IacucProcessService {
     private java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> getReminderHistory(final String bizKey) {
 
         final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> list = new java.util.ArrayList<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm>();
-        final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> reminder90History=getReminderServiceHistory(bizKey, Reminder.Day90);
-        if( !reminder90History.isEmpty() ) {
+        final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> reminder90History = getReminderServiceHistory(bizKey, Reminder.Day90);
+        if (!reminder90History.isEmpty()) {
             list.addAll(reminder90History);
         }
-        final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> reminder60History=getReminderServiceHistory(bizKey, Reminder.Day60);
-        if( !reminder60History.isEmpty() ) {
+        final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> reminder60History = getReminderServiceHistory(bizKey, Reminder.Day60);
+        if (!reminder60History.isEmpty()) {
             list.addAll(reminder60History);
         }
-        final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> reminder30History=getReminderServiceHistory(bizKey, Reminder.Day30);
-        if( !reminder30History.isEmpty() ) {
+        final java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> reminder30History = getReminderServiceHistory(bizKey, Reminder.Day30);
+        if (!reminder30History.isEmpty()) {
             list.addAll(reminder30History);
         }
         return list;
     }
-
 
 
     private java.util.List<edu.columbia.rascal.business.service.review.iacuc.IacucTaskForm> getReminderServiceHistory(final String bizKey, final Reminder reminder) {
@@ -1029,11 +1029,11 @@ public final class IacucProcessService {
 
     java.util.List<org.activiti.engine.task.Task> getOpenTasksByBizKeyAndCandidateGroup(final String bizKey,
                                                                                         final String userId,
-                                                                                        final java.util.List<String> candidateGroup) {
+                                                                                        final List<String> candidateGroup) {
         Assert.notNull(bizKey, "undefined bizKey");
-        final java.util.List<org.activiti.engine.task.Task> retList = new java.util.ArrayList<org.activiti.engine.task.Task>();
+        final List<Task> retList = new java.util.ArrayList<Task>();
 
-        final java.util.List<org.activiti.engine.task.Task> list = taskService.createTaskQuery()
+        final List<Task> list = taskService.createTaskQuery()
                 .processDefinitionKey(ProcessConst.PROTOCOL_PROCESS_DEF)
                 .processInstanceBusinessKey(bizKey)
                 .taskCandidateGroupIn(candidateGroup).list();
@@ -1055,7 +1055,7 @@ public final class IacucProcessService {
                     continue;
                 }
             } else if (taskDefKey.startsWith("rv") && !userId.equals(getUserIdFromIdentityLink(task.getId()))) {
-                    continue;
+                continue;
             }
             retList.add(task);
         }
@@ -1068,7 +1068,7 @@ public final class IacucProcessService {
 
     boolean hasReviewerAction(final String bizKey) {
         final String processInstanceId = getCurrentProtocolProcessInstanceId(bizKey);
-        final java.util.List<org.activiti.engine.history.HistoricTaskInstance> list = historyService
+        final java.util.List<HistoricTaskInstance> list = historyService
                 .createHistoricTaskInstanceQuery()
                 .processInstanceBusinessKey(bizKey)
                 .processInstanceId(processInstanceId)
@@ -1080,7 +1080,7 @@ public final class IacucProcessService {
 
     java.util.Set<String> getReviewerUserId(final String bizKey) {
         final java.util.Set<String> reviewerUserId = new java.util.TreeSet<String>();
-        final java.util.List<org.activiti.engine.task.Task> list = taskService.createTaskQuery()
+        final java.util.List<Task> list = taskService.createTaskQuery()
                 .processDefinitionKey(ProcessConst.PROTOCOL_PROCESS_DEF)
                 .processInstanceBusinessKey(bizKey)
                 .taskDefinitionKeyLike("rv%")
@@ -1098,7 +1098,7 @@ public final class IacucProcessService {
     }
 
     private String getUserIdFromIdentityLink(final String taskId) {
-        final java.util.List<org.activiti.engine.task.IdentityLink> list = taskService.getIdentityLinksForTask(taskId);
+        final java.util.List<IdentityLink> list = taskService.getIdentityLinksForTask(taskId);
         if (list == null) {
             return null;
         }
@@ -1204,7 +1204,18 @@ public final class IacucProcessService {
     private IacucCorrespondence newIacucCorrespondence() {
         return new IacucCorrespondence();
     }
+
     private final IacucTaskForm newIacucTaskForm() {
         return new IacucTaskForm();
+    }
+
+    public List<Task> getOpenTaskByBizKey(final String bizKey) {
+        Assert.notNull(bizKey);
+        return taskService.createTaskQuery()
+                .processDefinitionKey(ProcessConst.PROTOCOL_PROCESS_DEF)
+                .processInstanceBusinessKey(bizKey)
+                .includeProcessVariables()
+                .orderByTaskCreateTime()
+                .desc().list();
     }
 }
